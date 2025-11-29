@@ -1,0 +1,124 @@
+
+/* Tarjeta transparente */
+.login-card {
+  width: 200px;
+  text-align: center;
+  color: white;
+}
+
+/* Título */
+.login-card h2 {
+  margin-bottom: 25px;
+  font-weight: 300;
+}
+
+
+/* Inputs */
+.input-field {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 25px;
+  outline: none;
+   background-color: rgba(255, 255, 255, 0.1); /* súper leve */
+  backdrop-filter: blur(5px); /* difuminado del fondo */
+  font-size: 14px;
+  text-align: center;
+}
+/* Cuando el input está enfocado */
+.input-field:focus {
+  background-color: rgba(255, 255, 255, 0.1); /* igual */
+  outline: none;
+}
+/* Para Safari / iOS — estos son especiales */
+.input-field:-webkit-autofill,
+.input-field:-webkit-autofill:hover,
+.input-field:-webkit-autofill:focus {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+.input-field::placeholder {
+  color: rgba(255, 255, 255, 0.877);
+  opacity: 1; /* Para que no lo haga gris tenue */
+}
+
+/* Botón LOGIN */
+.login-btn {
+  width: 75%;
+  padding: 12px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 25px;
+  background-color: rgba(0, 50, 120, 0.7); /* Azul oscuro translúcido */  color: white;
+  box-shadow: 0 0 10px rgba(0, 50, 120, 0.5);
+  transition: all 0.3s ease;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  text-align: center;
+  font-weight: bold;
+  position: relative;
+    overflow: hidden;
+}
+.login-btn::before{
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0,180,255,0.5) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.login-btn:hover {
+  background-color: rgba(0, 80, 200, 0.9);
+    box-shadow: 0 0 20px rgba(0, 180, 255, 0.7);
+}
+.login-btn:hover::before{
+  opacity: 1;
+}
+
+/* Opciones (Forgot / Signup) */
+.options {
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0 20px 0;
+  font-size: 13px;
+}
+
+.options a {
+  color: #ffffffc9;
+  text-decoration: none;
+}
+
+.options a:hover {
+  text-decoration: underline;
+}
+
+/* Texto divisor */
+.divider {
+  margin-bottom: 10px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+/* Social buttons */
+.social-login {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.social-login img {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.social-login img:hover {
+  transform: scale(1.1);
+}
