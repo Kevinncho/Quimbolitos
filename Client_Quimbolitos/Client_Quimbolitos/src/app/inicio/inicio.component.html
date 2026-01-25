@@ -1,0 +1,87 @@
+<app-header></app-header>
+<div class="contenedor_principal">
+<section class="perfiles">
+  <div class="perfil perfil-uno"></div>
+  <div class="perfil perfil-dos"></div>
+</section>
+
+<div class="tarjeta-diaria">
+  <p class="pregunta"   [class.oculto]="mostrarInput" *ngIf="!mostrarInput">¿Si los gatos pudieran hablar, qué crees que dirían primero?</p>
+  <!-- Botón Responder: solo aparece si la caja NO se está mostrando -->
+  <button class="boton-responder" (click)="mostrarCaja()" *ngIf="!mostrarInput"  [class.oculto]="mostrarInput">Responder</button>
+
+  <!-- Caja de respuesta y botón Ocultar: solo aparece si se ha hecho click en Responder -->
+  <div *ngIf="mostrarInput" class="caja-respuesta" [class.visible]="mostrarInput">
+    <textarea
+      [(ngModel)]="respuesta"
+      placeholder="Escribe tu respuesta aquí..."
+      class="respuesta-input"
+      rows="3">
+    </textarea>
+    <button class="boton-enviar" (click)="enviarRespuesta()">Enviar</button>
+    <button class="boton-ocultar" (click)="ocultarCaja()">Volver</button>
+  </div>
+</div>
+<div class="distancia-widget" *ngIf="distanciaKm !== null">
+  <p class="distancia-texto">Nuestra distancia</p>
+
+  <div class="distancia-centro">
+    <div class="circulo">K</div>
+
+    <div class="linea">
+      <span class="corazon">♥</span>
+    </div>
+
+    <div class="circulo">T</div>
+  </div>
+
+  <p class="km">{{ distanciaKm | number:'1.0-0' }} km</p>
+</div>
+<div class="ritual-llave-contenedor">
+  <div
+    class="llave-ritual"
+    [class.llave-abriendo]="abriendoLlave"
+    (click)="abrirLlave()">
+  </div>
+
+  <div class="mensaje-magico lateral" *ngIf="mostrarMensaje">
+    <p>
+      Aunque la distancia exista,<br>
+      hay un lugar donde siempre<br>
+      estamos juntos 💙
+    </p>
+  </div>
+</div>
+<div class="mapa-emocional">
+  <h1 class="titulo_mapa_emocional">Mapa emocional</h1>
+
+  <!-- Encabezados -->
+  <div class="celda encabezado">Usuario</div>
+  <div class="celda encabezado">Estado</div>
+  <div class="celda encabezado">Emoji</div>
+
+  <!-- Filas de usuarios -->
+  <ng-container *ngFor="let estado of estados; let i = index">
+    <div class="celda usuario">{{ estado.usuario }}</div>
+    <div class="celda estado">{{ estado.estado }}</div>
+    <div
+  class="celda emoji"
+  [ngClass]="emojiColorMap[estado.emoji]"
+  (click)="toggleEmojiSelector(i)"
+>
+  {{ estado.emoji }}
+
+  <div *ngIf="mostrarSelectorEmoji[i]" class="emoji-dropdown">
+    <span
+      *ngFor="let e of listaEmojis"
+      (click)="seleccionarEmoji(i, e)"
+    >
+      {{ e }}
+    </span>
+  </div>
+</div>
+
+  </ng-container>
+</div>
+</div>
+

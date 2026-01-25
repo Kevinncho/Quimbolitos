@@ -1,0 +1,31 @@
+<app-header></app-header>
+
+<div class="ahorcado-container">
+
+  <div  class="inicio">
+    <div class="panel-inicio">
+  <section class="perfiles">
+    <div class="perfil perfil-uno"></div>
+  </section>
+      <h2>Jugador 1</h2>
+
+      <label>Ingresa una palabra</label>
+      <input #inputPalabra type="text" />
+
+      <label>Ingresa una pista (opcional)</label>
+      <input
+        #inputPista
+        type="text"
+        placeholder="Ej: animal, película, lugar..."
+      />
+
+      <button (click)="iniciarJuego(inputPalabra.value, inputPista.value)">
+        Comenzar Juego
+      </button>
+
+    </div>
+  </div>
+
+</div>
+
+

@@ -1,0 +1,46 @@
+<app-header></app-header>
+
+<div class="preguntas-layout">
+
+  <!-- Sidebar de Temas -->
+  <aside class="sidebar-temas">
+    <h2 class="titulo-temas">Temas</h2>
+    <ul class="lista-temas">
+      <li (click)="seleccionarTema('conversacion-profundas')"
+          [class.tema-activo]="temaSeleccionado==='conversacion-profundas'">
+        Conversaciones profundas
+      </li>
+      <li (click)="seleccionarTema('divertidas')"
+          [class.tema-activo]="temaSeleccionado==='divertidas'">
+        Divertidas
+      </li>
+      <li (click)="seleccionarTema('romanticas')"
+          [class.tema-activo]="temaSeleccionado==='romanticas'">
+        Románticas
+      </li>
+      <li (click)="seleccionarTema('esto-o-aquello')"
+          [class.tema-activo]="temaSeleccionado==='esto-o-aquello'">
+        Esto o aquello
+      </li>
+      <li (click)="seleccionarTema('intensas')"
+          [class.tema-activo]="temaSeleccionado==='intensas'">
+        Intensas
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Contenido principal con grid de conversaciones -->
+  <main class="contenido-principal">
+    <div class="grid-temas">
+      <div *ngFor="let conv of conversacionesFiltradas" class="tarjeta-diaria">
+      <p class="pregunta">
+        <span class="emoji">{{ conv.emoji }}</span>
+        {{ conv.titulo }}
+      </p>
+         <button class="boton-responder" [routerLink]="['/pregunta_tema', conv.id]">Responder</button>
+      </div>
+    </div>
+
+  </main>
+
+</div>

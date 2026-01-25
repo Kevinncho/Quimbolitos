@@ -1,0 +1,76 @@
+<app-header></app-header>
+
+<div *ngIf="preguntaActual" class="contenedor-pregunta">
+  <div class="panel-pregunta-solido">
+    <h1 class="titulo">
+      {{ preguntaActual.titulo }}
+      <span class="emoji">{{ preguntaActual.emoji }}</span>
+    </h1>
+
+    <p class="pregunta">
+      {{ preguntaActual.texto }}
+    </p>
+
+    <div class="input-con-boton">
+      <textarea
+        class="respuesta-input"
+        [(ngModel)]="respuesta"
+        placeholder="Escribe tu respuesta aquí..."
+        rows="3">
+      </textarea>
+
+      <button
+        class="boton-flecha"
+        [disabled]="!respuesta || respuesta.trim().length === 0"
+        (click)="siguientePregunta()">
+        ↑
+      </button>
+    </div>
+    <button
+  class="btn-responder-enviar"
+  *ngIf="indicePregunta === preguntas.length - 1"
+  [disabled]="!respuesta || respuesta.trim().length === 0"
+  (click)="enviarTodo()">
+  Enviar
+</button>
+  </div>
+</div>
+<div class="contenedor-contador">
+  <!-- Ir al inicio -->
+  <button
+    class="nav-btn nav-extremo"
+    (click)="irAlInicio()"
+    [disabled]="indicePregunta === 0">
+    «
+  </button>
+
+  <!-- Anterior -->
+  <button
+    class="nav-btn"
+    (click)="anteriorPregunta()"
+    [disabled]="indicePregunta === 0">
+    ‹
+  </button>
+
+  <!-- Contador -->
+  <p class="contador">
+    {{ indicePregunta + 1 }} / {{ preguntas.length }}
+  </p>
+
+  <!-- Siguiente -->
+  <button
+    class="nav-btn"
+    (click)="siguientePregunta()"
+    [disabled]="indicePregunta === preguntas.length - 1">
+    ›
+  </button>
+
+  <!-- Ir al final -->
+  <button
+    class="nav-btn nav-extremo"
+    (click)="irAlFinal()"
+    [disabled]="indicePregunta === preguntas.length - 1">
+    »
+  </button>
+</div>
+

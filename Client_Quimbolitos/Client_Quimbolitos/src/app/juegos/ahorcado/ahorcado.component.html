@@ -1,0 +1,46 @@
+<app-header></app-header>
+
+<div class="juego-layout">
+
+ <div class="ahorcado-escena">
+
+  <div class="parte torso" *ngIf="errores >= 1"></div>
+  <div class="parte cabeza" *ngIf="errores >= 2"></div>
+  <div class="parte brazo izq" *ngIf="errores >= 3"></div>
+  <div class="parte brazo der" *ngIf="errores >= 4"></div>
+  <div class="parte piernas" *ngIf="errores >= 5"></div>
+  <div class="parte pierna izq" *ngIf="errores >= 6"></div>
+
+</div>
+
+
+  <!-- PALABRA -->
+  <div class="palabra">
+    <span *ngFor="let l of palabraVisible">{{ l }}</span>
+  </div>
+
+  <!-- PANEL TECLADO -->
+  <div class="panel-teclado">
+
+    <div *ngIf="pista" class="pista">
+      PISTA:  {{ pista }}
+    </div>
+
+    <div class="teclado teclado-compacto">
+      <button
+        *ngFor="let letra of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')"
+        [disabled]="letrasUsadas.includes(letra) || juegoTerminado"
+        (click)="jugarLetra(letra)">
+        {{ letra }}
+      </button>
+    </div>
+
+    <div class="resultado" *ngIf="juegoTerminado">
+      <p>{{ mensajeFinal }}</p>
+      <button (click)="reiniciar()">Reiniciar</button>
+      <button (click)="volverAJuegos()">Volver</button>
+    </div>
+
+  </div>
+
+</div>
