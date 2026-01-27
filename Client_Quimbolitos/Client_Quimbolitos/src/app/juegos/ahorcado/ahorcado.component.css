@@ -5,7 +5,7 @@
   width: 100vw;
   min-height: 100vh;
 
-  background-image: url('../../../assets/ahorcado2.png');
+  background-image: url('../../../assets/ahorcadoQui.png');
 
   /* ESTO ES LO IMPORTANTE */
  background-size: cover;        /* ocupa TODA la pantalla */
@@ -31,19 +31,31 @@ background-position: center -220px;
   z-index: 1;   /* 👈 CABALLERO ABAJO */
   pointer-events: none;
   opacity: 0.85;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.9));
-    mix-blend-mode: normal; /* puedes probar multiply */
-    
+  /* atmósfera */
+  filter: blur(0.2px);
 
+}
+.ahorcado-escena::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(0,0,0,0.35) 75%
+  );
+
+  pointer-events: none;
+  z-index: 3;
 }
 /* CABEZA */
 .cabeza {
-  width: 90px;
-  height: 90px;
-  top: -105px;
+width: 48px;
+    height: 75px;
+    top: -103px;
     left: 34%;
   transform: translateX(-50%);
-  background-image: url('../../../assets/cabeza.png');
+  background-image: url('../../../assets/cabeza3.png');
 }
 /* TORSO */
 .torso {
