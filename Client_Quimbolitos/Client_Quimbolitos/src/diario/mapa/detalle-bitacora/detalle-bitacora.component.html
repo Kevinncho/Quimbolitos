@@ -1,0 +1,39 @@
+<div class="detalle-container" *ngIf="recuerdo">
+  <button class="cerrar" type="button" (click)="cerrarDetalle()">
+    &times;
+  </button>
+
+  <div class="detalle-card">
+    <div class="imagen-wrapper">
+      <img class="detalle-imagen" [src]="getImagenRecuerdo()" [alt]="recuerdo.titulo">
+    </div>
+
+    <h1>{{ recuerdo.titulo }}</h1>
+
+    <div class="autor-info">
+      <img class="avatar" [src]="getAvatarAutor()">
+      <span>Creado por {{ recuerdo.usuarioNombre }}</span>
+    </div>
+
+    <p class="descripcion">{{ recuerdo.descripcion }}</p>
+
+    <div class="detalle-extra">
+      <div class="dato">
+        <span class="label">Fecha</span>
+        <span class="valor">{{ recuerdo.fechaRecuerdo | date:'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="dato">
+        <span class="label">País</span>
+        <span class="valor">{{ recuerdo.paisNombre || 'Sin país' }}</span>
+      </div>
+      <div class="dato">
+        <span class="label">Ciudad</span>
+        <span class="valor">{{ recuerdo.ciudadNombre || 'Sin ciudad' }}</span>
+      </div>
+      <div class="dato">
+        <span class="label">Coordenadas</span>
+        <span class="valor">{{ recuerdo.latitud | number:'1.4-4' }}, {{ recuerdo.longitud | number:'1.4-4' }}</span>
+      </div>
+    </div>
+  </div>
+</div>

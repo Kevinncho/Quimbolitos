@@ -1,0 +1,33 @@
+<section class="mapa-page">
+  <div id="travel-map" class="mapa-fullscreen" aria-label="Mapa mundial interactivo"></div>
+
+  <div class="mapa-overlay">
+    <a class="back-link" [routerLink]="['/diario']">Volver al diario</a>
+
+    <div class="info-card">
+      <p class="eyebrow">Diario de viajes</p>
+      <h1>Marca tu próximo recuerdo</h1>
+      <p class="description">
+        Explora el mundo, acércate para ver ciudades y carreteras, y cuando quieras guardar un lugar pulsa el botón y selecciona el punto exacto en el mapa.
+      </p>
+
+      <div class="status" [class.active]="modoSeleccion">
+        {{ modoSeleccion ? 'Modo selección activado: elige una ubicación en el mapa.' : 'Pulsa el botón + para seleccionar una ubicación.' }}
+      </div>
+
+      <p class="coordinates" *ngIf="coordenadasSeleccionadas as coords">
+        Última ubicación: {{ coords.lat | number:'1.4-4' }}, {{ coords.lng | number:'1.4-4' }}
+      </p>
+      <a class="bitacora-link" [routerLink]="['/diario/mapa/bitacora']">Ver bitácora de recuerdos</a>    </div>
+  </div>
+
+  <button
+    type="button"
+    class="floating-button"
+    aria-label="Seleccionar ubicación"
+    title="Seleccionar ubicación"
+    (click)="activarModoSeleccion()"
+  >
+    +
+  </button>
+</section>

@@ -1,0 +1,79 @@
+<div class="detalle-container" *ngIf="recuerdo">
+  <button class="cerrar" type="button" (click)="cerrarDetalle()">
+    &times;
+  </button>
+
+  <div class="detalle-card">
+<div class="imagen-wrapper">
+  <img class="detalle-imagen" [src]="getImagenRecuerdo()">
+</div>
+    <h1>{{ recuerdo.titulo }}</h1>
+
+    <div class="autor-info">
+      <img class="avatar" [src]="getAvatarAutorRecuerdo()">
+      <span>Creado por {{ recuerdo.usuarioNombre }}</span>
+    </div>
+
+    <p>{{ recuerdo.descripcion }}</p>
+
+  <!-- 🔥 SOLO MENSAJES -->
+    <div class="chat" #chatContainer (scroll)="onChatScroll()">
+      <p *ngIf="cargandoMensajes" class="chat-feedback">Cargando mensajes...</p>
+      <p *ngIf="errorMensajes" class="chat-feedback error">{{ errorMensajes }}</p>
+      <p *ngIf="!cargandoMensajes && !errorMensajes && comentarios.length === 0" class="chat-feedback">
+        Todavia no hay mensajes. Escribe el primero.
+      </p>
+
+      <button
+        *ngIf="mensajesVisibles.length < comentarios.length"
+        type="button"
+        class="btn-cargar"
+        (click)="cargarMensajesAnteriores()"
+      >
+        Cargar mensajes anteriores
+      </button>
+
+      <div
+        *ngFor="let comentario of mensajesVisibles"
+        class="mensaje"
+        [ngClass]="{'propio': comentario.autor === usuarioActual}"
+      >
+
+  <!-- Avatar izquierdo -->
+  <img
+    *ngIf="comentario.autor !== usuarioActual"
+    class="avatar-mini"
+    [src]="getAvatarMensaje(comentario)"
+  >
+
+ <div class="burbuja">
+  <strong>{{ comentario.autor }}</strong>
+  <p>{{ comentario.contenido }}</p>
+
+  <span class="hora">
+    {{ comentario.fechaEnvio | date:'HH:mm' }}
+  </span>
+</div>
+
+  <!-- Avatar derecho -->
+  <img
+    *ngIf="comentario.autor === usuarioActual"
+    class="avatar-mini"
+    [src]="getAvatarMensaje(comentario)"
+  >
+
+</div>
+
+    <div class="input-chat">
+<input
+  [(ngModel)]="nuevoMensaje"
+  (keyup.enter)="enviarMensaje()"
+  placeholder="Escribe un mensaje..."
+>
+<button class="btn-enviar" (click)="enviarMensaje()" [disabled]="!nuevoMensaje.trim()">
+  <img src="assets/paper-plane.png" alt="Enviar">
+</button>    </div>
+
+  </div>
+
+</div>

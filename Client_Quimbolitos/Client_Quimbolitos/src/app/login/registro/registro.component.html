@@ -1,0 +1,102 @@
+<div class="registro-container">
+  <div class="registro-left">
+    <h2>Reino de los Quimbolitos</h2>
+    <p>Crea tu usuario y entra al reino con tu propia esencia.</p>
+
+    <img src="assets/pantallainicio.jpg" alt="registro" />
+  </div>
+
+  <div class="registro-right">
+    <h2>Crear usuario</h2>
+
+    <p class="registro-link">
+      ¿Ya tienes cuenta? <a [routerLink]="['/login']">Inicia sesión</a>
+    </p>
+
+    <form (ngSubmit)="onRegister()">
+      <div class="form-grid">
+        <div class="avatar-block full-width">
+          <label
+            class="avatar-picker"
+            for="registroFoto"
+            [style.background-image]="'url(' + (fotoPerfilPreview || '/assets/sinuser.svg') + ')'"
+          >
+            <span class="avatar-label">Subir foto de perfil</span>
+          </label>
+          <input
+            id="registroFoto"
+            class="avatar-input"
+            type="file"
+            accept="image/*"
+            (change)="onFotoPerfilSeleccionada($event)"
+          />
+          <p class="avatar-help">Puedes cambiarla despues en tu perfil.</p>
+        </div>
+
+
+        <input
+          type="text"
+          placeholder="Nombre..."
+          [(ngModel)]="registerData.nombre"
+          name="nombre"
+          required
+        />
+
+        <input
+          type="text"
+          placeholder="Alias..."
+          [(ngModel)]="registerData.alias"
+          name="alias"
+        />
+
+        <input
+          type="email"
+          placeholder="Correo..."
+          [(ngModel)]="registerData.email"
+          name="email"
+          required
+        />
+
+        <input
+          type="date"
+          [(ngModel)]="registerData.fechaNacimiento"
+          name="fechaNacimiento"
+        />
+
+        <textarea
+          class="full-width"
+          placeholder="Biografía..."
+          [(ngModel)]="registerData.biografia"
+          name="biografia"
+          rows="3"
+        ></textarea>
+
+
+        <input
+          type="password"
+          placeholder="Contraseña..."
+          [(ngModel)]="registerData.password"
+          name="password"
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Confirmar contraseña..."
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          required
+        />
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" [disabled]="isLoading">
+        {{ isLoading ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </button>
+    </form>
+  </div>
+</div>
+

@@ -1,0 +1,88 @@
+<section class="crear-memoria-mapa-page">
+  <div class="page-shell">
+    <a class="back-link" [routerLink]="['/diario/mapa']">Volver al mapa</a>
+
+    <div class="intro-panel">
+      <p class="eyebrow">Memoria del mapa</p>
+      <h1>Guarda el lugar exacto de tu aventura</h1>
+      <p class="intro">
+        Este formulario solo pertenece al mapa. Aquí guardas el punto seleccionado con su país, ciudad y tu recuerdo escrito.
+      </p>
+
+      <div class="coords-box" *ngIf="lat !== null && lng !== null">
+        <span>Latitud: {{ lat | number:'1.4-4' }}</span>
+        <span>Longitud: {{ lng | number:'1.4-4' }}</span>
+      </div>
+
+      <p class="loading" *ngIf="cargandoUbicacion">
+        Buscando país y ciudad...
+      </p>
+    </div>
+
+    <form class="memoria-form" (ngSubmit)="guardarMemoria()">
+      <div class="imagen-preview" *ngIf="preview">
+        <img [src]="preview" alt="Vista previa del recuerdo">
+      </div>
+
+      <label class="upload">
+        Agregar imagen (opcional)
+        <input type="file" (change)="onImagenSeleccionada($event)" accept="image/*">
+      </label>
+
+      <label>
+        <span>Título</span>
+        <input
+          type="text"
+          name="titulo"
+          [(ngModel)]="titulo"
+          placeholder="Paseo por París"
+          required
+        />
+      </label>
+
+      <label>
+        <span>Descripción</span>
+        <textarea
+          name="descripcion"
+          [(ngModel)]="descripcion"
+          rows="6"
+          placeholder="Escribe aquí lo que pasó en este lugar..."
+          required
+        ></textarea>
+      </label>
+
+      <div class="location-grid">
+        <label>
+          <span>País</span>
+          <input
+            type="text"
+            name="pais"
+            [(ngModel)]="pais"
+            placeholder="Francia"
+            required
+          />
+        </label>
+
+        <label>
+          <span>Ciudad</span>
+          <input
+            type="text"
+            name="ciudad"
+            [(ngModel)]="ciudad"
+            placeholder="París"
+            required
+          />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="secondary-button" (click)="volverAlMapa()">
+          Cambiar ubicación
+        </button>
+        <button type="submit" class="primary-button">
+          Guardar memoria
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

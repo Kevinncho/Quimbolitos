@@ -1,46 +1,287 @@
 <app-header></app-header>
 
 <div class="preguntas-layout">
-
-  <!-- Sidebar de Temas -->
   <aside class="sidebar-temas">
-    <h2 class="titulo-temas">Temas</h2>
+    <div class="panel panel-header-admin">
+      <h2 class="titulo-temas">Temas</h2>
+      <button
+        *ngIf="esAdmin"
+        type="button"
+        class="resultados-btn admin-create-btn"
+        (click)="abrirModalCrearTema()"
+      >
+        Nuevo tema
+      </button>
+    </div>
+
     <ul class="lista-temas">
-      <li (click)="seleccionarTema('conversacion-profundas')"
-          [class.tema-activo]="temaSeleccionado==='conversacion-profundas'">
-        Conversaciones profundas
-      </li>
-      <li (click)="seleccionarTema('divertidas')"
-          [class.tema-activo]="temaSeleccionado==='divertidas'">
-        Divertidas
-      </li>
-      <li (click)="seleccionarTema('romanticas')"
-          [class.tema-activo]="temaSeleccionado==='romanticas'">
-        Románticas
-      </li>
-      <li (click)="seleccionarTema('esto-o-aquello')"
-          [class.tema-activo]="temaSeleccionado==='esto-o-aquello'">
-        Esto o aquello
-      </li>
-      <li (click)="seleccionarTema('intensas')"
-          [class.tema-activo]="temaSeleccionado==='intensas'">
-        Intensas
+      <li
+        *ngFor="let tema of temas"
+        (click)="seleccionarTema(tema.id)"
+        [class.tema-activo]="temaSeleccionadoId === tema.id"
+      >
+        <div class="admin-row">
+          <div>
+            <span class="tema-nombre">{{ tema.nombre }}</span>
+            <span class="tema-meta">{{ tema.totalSubtemas }} subtemas</span>
+          </div>
+          <div *ngIf="esAdmin" class="admin-actions">
+            <button type="button" class="admin-btn admin-btn-edit" (click)="abrirModalTema(tema, $event)">Editar</button>
+            <button type="button" class="admin-btn admin-btn-delete" (click)="eliminarTema(tema, $event)">Eliminar</button>
+          </div>
+        </div>
       </li>
     </ul>
   </aside>
 
-  <!-- Contenido principal con grid de conversaciones -->
   <main class="contenido-principal">
-    <div class="grid-temas">
-      <div *ngFor="let conv of conversacionesFiltradas" class="tarjeta-diaria">
-      <p class="pregunta">
-        <span class="emoji">{{ conv.emoji }}</span>
-        {{ conv.titulo }}
-      </p>
-         <button class="boton-responder" [routerLink]="['/pregunta_tema', conv.id]">Responder</button>
+    <p *ngIf="errorMessage" class="feedback error">{{ errorMessage }}</p>
+    <p *ngIf="isLoadingTemas" class="feedback">Cargando temas...</p>
+
+    <div *ngIf="!isLoadingTemas && temas.length === 0" class="empty-state">
+      <h3>No hay temas todavía</h3>
+      <p>Crea tu primer tema para empezar a organizar subtemas y preguntas.</p>
+      <button
+        *ngIf="esAdmin"
+        type="button"
+        class="resultados-btn admin-create-btn empty-create-btn"
+        (click)="abrirModalCrearTema()"
+      >
+        Crear primer tema
+      </button>
+    </div>
+
+    <div *ngIf="temas.length > 0" class="content-grid">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-head-row">
+            <h2>Subtemas</h2>
+            <button
+              *ngIf="esAdmin"
+              type="button"
+              class="resultados-btn admin-create-btn"
+              [disabled]="!puedeCrearSubtema"
+              (click)="abrirModalCrearSubtema()"
+            >
+              Nuevo subtema
+            </button>
+          </div>
+          <p>Selecciona un tema para ver sus subtemas.</p>
+        </div>
+
+        <p *ngIf="isLoadingSubtemas" class="feedback">Cargando subtemas...</p>
+
+        <div *ngIf="!isLoadingSubtemas && subtemas.length === 0" class="empty-block">
+          Este tema todavía no tiene subtemas.
+        </div>
+
+        <div *ngIf="subtemas.length > 0" class="chip-list">
+          <div
+            *ngFor="let subtema of subtemas"
+            class="chip chip-wrapper"
+            [class.chip-active]="subtemaSeleccionadoId === subtema.id"
+            (click)="seleccionarSubtema(subtema.id)"
+          >
+            <div class="chip-content">
+              <img
+                *ngIf="getIconoPath(subtema.icono) as iconoPath"
+                class="chip-icon chip-icon-image"
+                [src]="iconoPath"
+                [alt]="subtema.nombre"
+                (error)="ocultarIconoRoto($event)"
+              />
+              <span>{{ subtema.nombre }}</span>
+            </div>
+            <div *ngIf="esAdmin" class="admin-actions chip-actions">
+              <button type="button" class="admin-btn admin-btn-edit" (click)="abrirModalSubtema(subtema, $event)">Editar</button>
+              <button type="button" class="admin-btn admin-btn-delete" (click)="eliminarSubtema(subtema, $event)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-head-row">
+            <h2>Preguntas</h2>
+            <button
+              class="resultados-btn"
+              type="button"
+              *ngIf="puedeVerResultadosSubtema"
+              (click)="abrirResultadosSubtema()"
+            >
+              Ver resultados
+            </button>
+          </div>
+          <p>Las preguntas del subtema activo se cargan directamente desde la base de datos.</p>
+          <p class="resultados-estado" *ngIf="estadoResultadosSubtema">{{ estadoResultadosSubtema }}</p>
+        </div>
+
+        <p *ngIf="isLoadingPreguntas" class="feedback">Cargando preguntas...</p>
+
+        <div *ngIf="!subtemaSeleccionadoId && !isLoadingSubtemas" class="empty-block">
+          Selecciona un subtema para ver sus preguntas.
+        </div>
+
+        <div *ngIf="!isLoadingPreguntas && subtemaSeleccionadoId && preguntas.length === 0" class="empty-block">
+          Este subtema todavía no tiene preguntas.
+        </div>
+
+        <div *ngIf="preguntas.length > 0" class="preguntas-list">
+          <article *ngFor="let pregunta of preguntas" class="pregunta-card" [class.pregunta-completada]="estaCompletada(pregunta.id)">
+            <div class="pregunta-copy">
+              <div class="pregunta-head admin-head">
+                <div>
+                  <h3>{{ pregunta.enunciado }}</h3>
+                  <span *ngIf="estaCompletada(pregunta.id)" class="estado-completado">Completado</span>
+                </div>
+                <div *ngIf="esAdmin" class="admin-actions">
+                  <button type="button" class="admin-btn admin-btn-edit" (click)="abrirModalPregunta(pregunta, $event)">Editar</button>
+                  <button type="button" class="admin-btn admin-btn-delete" (click)="eliminarPregunta(pregunta, $event)">Eliminar</button>
+                </div>
+              </div>
+              <p *ngIf="pregunta.descripcion">{{ pregunta.descripcion }}</p>
+              <div class="respuesta-estados" *ngIf="parejaActiva?.estado === 'ACTIVA'">
+                <span class="respuesta-chip" [class.activa]="getEstadoRespuestaPregunta(pregunta.id).usuario">Tu respuesta</span>
+                <span class="respuesta-chip pareja" [class.activa]="getEstadoRespuestaPregunta(pregunta.id).pareja">Respuesta pareja</span>
+              </div>
+            </div>
+            <a class="boton-responder" [routerLink]="['/pregunta_tema', pregunta.id]">Responder</a>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div *ngIf="modalEdicionAbierto" class="admin-modal-backdrop" (click)="cerrarModalEdicion()">
+  <section class="admin-modal" (click)="$event.stopPropagation()">
+    <button type="button" class="admin-modal-close" (click)="cerrarModalEdicion()" aria-label="Cerrar editor">
+      &times;
+    </button>
+
+    <div class="admin-modal-header">
+      <p class="admin-modal-kicker">Panel admin</p>
+      <h2>{{ modalTitulo }}</h2>
+      <p>{{ modalDescripcion }}</p>
+    </div>
+
+    <form class="admin-form" (ngSubmit)="guardarEdicion()">
+      <label class="admin-field">
+        <span>{{ modalEdicionTipo === 'pregunta' ? 'Enunciado' : 'Nombre' }}</span>
+        <input
+          type="text"
+          [(ngModel)]="formularioEdicion.nombre"
+          name="nombre"
+          [disabled]="isSavingAdminAction"
+          required
+        />
+      </label>
+
+      <label class="admin-field">
+        <span>Descripcion</span>
+        <textarea
+          [(ngModel)]="formularioEdicion.descripcion"
+          name="descripcion"
+          rows="4"
+          [disabled]="isSavingAdminAction"
+        ></textarea>
+      </label>
+
+      <label *ngIf="modalEdicionTipo === 'subtema'" class="admin-field">
+        <span>Icono</span>
+        <input
+          type="text"
+          [(ngModel)]="formularioEdicion.icono"
+          name="icono"
+          [disabled]="isSavingAdminAction"
+          placeholder="ejemplo: cerebro.svg"
+        />
+      </label>
+
+      <label *ngIf="modalEdicionTipo === 'pregunta'" class="admin-toggle">
+        <input
+          type="checkbox"
+          [(ngModel)]="formularioEdicion.activa"
+          name="activa"
+          [disabled]="isSavingAdminAction"
+        />
+        <span>Pregunta activa</span>
+      </label>
+
+      <p *ngIf="adminActionMessage" class="feedback error">{{ adminActionMessage }}</p>
+
+      <div class="admin-form-actions">
+        <button type="button" class="admin-btn subtle" (click)="cerrarModalEdicion()" [disabled]="isSavingAdminAction">
+          Cancelar
+        </button>
+        <button type="submit" class="admin-btn primary" [disabled]="isSavingAdminAction">
+          {{ textoBotonGuardar }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<div *ngIf="mostrarResultadosSubtema" class="resultados-subtema-backdrop" (click)="cerrarResultadosSubtema()">
+  <section class="resultados-subtema-panel" (click)="$event.stopPropagation()">
+    <button type="button" class="resultados-subtema-cerrar" (click)="cerrarResultadosSubtema()" aria-label="Cerrar resultados">
+      x
+    </button>
+    <h2>Resultados del subtema</h2>
+
+    <div *ngIf="esSubtemaVisual; else resultadosTexto" class="visual-resultados">
+      <div class="similitud-panel">
+        <div class="similitud-ring" [style.--porcentaje]="porcentajeCoincidencia">
+          <div class="similitud-valor">{{ porcentajeCoincidencia }}%</div>
+          <span>similitud de respuestas</span>
+        </div>
+      </div>
+
+      <div class="visual-lista">
+        <article class="visual-item" *ngFor="let item of itemsVisuales; let i = index">
+          <div class="visual-numero">{{ i + 1 }}</div>
+          <p class="visual-pregunta">{{ item.respuesta.pregunta.enunciado }}</p>
+          <div class="visual-opciones">
+            <div
+              class="visual-opcion"
+              *ngFor="let opcion of item.opciones"
+              [class.visual-opcion-usuario]="opcionSeleccionada(item.respuesta, opcion.id, 'usuario')"
+              [class.visual-opcion-pareja]="opcionSeleccionada(item.respuesta, opcion.id, 'pareja')"
+              [class.visual-opcion-match]="opcionSeleccionada(item.respuesta, opcion.id, 'usuario') && opcionSeleccionada(item.respuesta, opcion.id, 'pareja')"
+            >
+              <img [src]="opcion.src" [alt]="opcion.alt" />
+              <div class="visual-tags">
+                <span *ngIf="opcionSeleccionada(item.respuesta, opcion.id, 'usuario')" class="visual-tag">Tu</span>
+                <span *ngIf="opcionSeleccionada(item.respuesta, opcion.id, 'pareja')" class="visual-tag pareja">Pareja</span>
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
 
-  </main>
+    <ng-template #resultadosTexto>
+      <p class="resultados-subtema-pregunta">{{ resultadoActual?.pregunta?.enunciado }}</p>
 
+      <div class="resultados-subtema-grid">
+        <article class="resultado-card">
+          <span class="resultado-tag">Tu respuesta</span>
+          <h3>{{ resultadoActual?.respuestaUsuario?.usuarioNombre }}</h3>
+          <p>{{ resultadoActual?.respuestaUsuario?.contenido }}</p>
+        </article>
+        <article class="resultado-card pareja">
+          <span class="resultado-tag">Respuesta de tu pareja</span>
+          <h3>{{ resultadoActual?.respuestaPareja?.usuarioNombre }}</h3>
+          <p>{{ resultadoActual?.respuestaPareja?.contenido }}</p>
+        </article>
+      </div>
+
+      <div class="resultados-subtema-actions">
+        <button type="button" class="resultados-nav" (click)="anteriorResultado()">Anterior</button>
+        <span class="resultados-indice">{{ indiceResultado + 1 }} / {{ respuestasSubtema.length }}</span>
+        <button type="button" class="resultados-nav primary" (click)="siguienteResultado()">Siguiente</button>
+      </div>
+    </ng-template>
+  </section>
 </div>

@@ -1,0 +1,112 @@
+<app-header></app-header>
+<div class="diario-container">
+  <div class="diario-header">
+    <h1 class="titulo_diario">Cronicas del Reino</h1>
+
+    <div class="acciones-header">
+      <button class="btn-music" (click)="goToPlaylist()">
+        <img src="assets/music.png" alt="Musica">
+      </button>
+
+      <button class="btn-mapa" (click)="irAMapa()">
+        <img src="assets/map.png" alt="Mapa">
+      </button>
+
+      <button class="btn-add" [routerLink]="['/diario/crear-recuerdo']">+</button>
+    </div>
+  </div>
+
+  <div class="recuerdos-grid">
+    <p *ngIf="cargando" class="diario-feedback">Cargando recuerdos...</p>
+    <p *ngIf="error" class="diario-feedback error">{{ error }}</p>
+    <div *ngIf="!cargando && !error && recuerdos.length === 0" class="diario-feedback empty-recuerdos">
+      <p>Todavia no hay recuerdos. Crea el primero para empezar tu historia.</p>
+      <a class="link-crear-recuerdo" [routerLink]="['/diario/crear-recuerdo']">Crear recuerdo</a>
+    </div>
+
+    <div
+      class="recuerdo-card"
+      *ngFor="let recuerdo of recuerdos"
+      (click)="verDetalle(recuerdo.id)"
+    >
+      <div class="fecha-lateral">
+        <span class="mes">{{ recuerdo.fechaRecuerdo | date:'MMM' }}</span>
+        <span class="dia">{{ recuerdo.fechaRecuerdo | date:'dd' }}</span>
+        <span class="anio">{{ recuerdo.fechaRecuerdo | date:'yyyy' }}</span>
+      </div>
+
+      <div class="imagen-container">
+        <img [src]="getImagenRecuerdo(recuerdo)" [alt]="recuerdo.titulo">
+      </div>
+
+      <div class="contenido">
+        <h2 class="titulo_recuerdo">{{ recuerdo.titulo }}</h2>
+        <p>{{ recuerdo.descripcion }}</p>
+
+        <div class="acciones">
+          <span>Comentarios: {{ recuerdo.mensajesCount ?? 0 }}</span>
+          <div class="acciones-iconos" *ngIf="puedeEditar(recuerdo)">
+            <button class="icono-btn" type="button" (click)="abrirEditar(recuerdo, $event)">
+              <img src="assets/editar.svg" alt="Editar">
+            </button>
+            <button class="icono-btn" type="button" (click)="eliminarRecuerdo(recuerdo, $event)">
+              <img src="assets/Eliminar.svg" alt="Eliminar">
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="editandoRecuerdo" class="modal-overlay" (click)="cerrarEditar()">
+  <div class="modal-content crear-recuerdo" (click)="$event.stopPropagation()">
+    <button class="cerrar" type="button" (click)="cerrarEditar()">
+      &times;
+    </button>
+
+    <h2>Editar Recuerdo</h2>
+    <p class="subtitulo">Actualiza tu recuerdo</p>
+
+    <form (ngSubmit)="guardarEdicion()">
+      <div class="imagen-preview" *ngIf="editPreview">
+        <img [src]="editPreview" alt="Vista previa del recuerdo">
+      </div>
+
+      <label class="upload">
+        Cambiar imagen
+        <input type="file" (change)="onEditarImagenSeleccionada($event)" accept="image/*">
+      </label>
+
+      <input
+        type="text"
+        placeholder="Titulo del recuerdo"
+        [(ngModel)]="editTitulo"
+        name="editTitulo"
+        required
+      />
+
+      <textarea
+        placeholder="Describe este momento..."
+        [(ngModel)]="editDescripcion"
+        name="editDescripcion"
+        rows="4"
+        required
+      ></textarea>
+
+      <input
+        type="date"
+        [(ngModel)]="editFecha"
+        name="editFecha"
+        required
+      />
+
+      <p *ngIf="errorEdicion" class="feedback error-feedback">{{ errorEdicion }}</p>
+
+      <button type="submit" [disabled]="guardandoEdicion">
+        {{ guardandoEdicion ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+    </form>
+  </div>
+</div>
+

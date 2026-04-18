@@ -1,46 +1,135 @@
-<app-header></app-header>
+﻿<app-header></app-header>
 
 <div class="juego-layout">
 
- <div class="ahorcado-escena">
+  <section class="perfiles-juego">
+    <div class="perfil-wrap">
+      <div class="perfil perfil-uno" [style.background-image]="fondoPerfilUsuario"></div>
+      <span class="nombre-perfil">{{ nombreUsuario }}</span>
+    </div>
+    <div class="perfil-wrap">
+      <div class="perfil perfil-dos" [style.background-image]="fondoPerfilPareja"></div>
+      <span class="nombre-perfil">{{ nombrePareja }}</span>
+    </div>
+  </section>
 
-  <div class="parte torso" *ngIf="errores >= 1"></div>
-  <div class="parte cabeza" *ngIf="errores >= 2"></div>
-  <div class="parte brazo izq" *ngIf="errores >= 3"></div>
-  <div class="parte brazo der" *ngIf="errores >= 4"></div>
-  <div class="parte piernas" *ngIf="errores >= 5"></div>
-  <div class="parte pierna izq" *ngIf="errores >= 6"></div>
-
-</div>
-
-
-  <!-- PALABRA -->
-  <div class="palabra">
-    <span *ngFor="let l of palabraVisible">{{ l }}</span>
+  <div class="estado-aviso" *ngIf="sinPartida">
+    <p>No hay una partida activa. Regresa a juegos para iniciar una nueva.</p>
+    <button class="btn secundario" (click)="volverAJuegos()">Volver</button>
   </div>
 
-  <!-- PANEL TECLADO -->
-  <div class="panel-teclado">
+  <div class="estado-aviso" *ngIf="errorEstado">
+    <p>{{ errorEstado }}</p>
+  </div>
 
-    <div *ngIf="pista" class="pista">
-      PISTA:  {{ pista }}
-    </div>
-
-    <div class="teclado teclado-compacto">
-      <button
-        *ngFor="let letra of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')"
-        [disabled]="letrasUsadas.includes(letra) || juegoTerminado"
-        (click)="jugarLetra(letra)">
-        {{ letra }}
+  <div class="nuevo-juego" *ngIf="mostrarCrear">
+    <h3>Nueva palabra</h3>
+    <input type="text" [(ngModel)]="nuevaPalabra" placeholder="Escribe la palabra" />
+    <input type="text" [(ngModel)]="nuevaPista" placeholder="Pista (opcional)" />
+    <p class="error-juego" *ngIf="errorNueva">{{ errorNueva }}</p>
+    <div class="acciones-nuevo">
+      <button class="btn primario" (click)="guardarNueva()" [disabled]="guardandoNueva">
+        {{ guardandoNueva ? 'Guardando...' : 'Iniciar partida' }}
       </button>
+      <button class="btn secundario" (click)="cancelarNueva()">Cancelar</button>
+    </div>
+  </div>
+
+  <section
+    class="zona-juego"
+    *ngIf="!sinPartida"
+    [class.turno-activo]="puedeJugar && !juegoTerminado"
+    [class.turno-espera]="!puedeJugar && !juegoTerminado">
+
+    <div
+      class="ahorcado-escena"
+      [class.turno-activo]="puedeJugar && !juegoTerminado"
+      [class.turno-espera]="!puedeJugar && !juegoTerminado">
+
+      <div class="parte torso" *ngIf="errores >= 1"></div>
+      <div class="parte cabeza" *ngIf="errores >= 2"></div>
+      <div class="parte brazo izq" *ngIf="errores >= 3"></div>
+      <div class="parte brazo der" *ngIf="errores >= 4"></div>
+      <div class="parte piernas" *ngIf="errores >= 5"></div>
+      <div class="parte pierna izq" *ngIf="errores >= 6"></div>
+
     </div>
 
-    <div class="resultado" *ngIf="juegoTerminado">
-      <p>{{ mensajeFinal }}</p>
-      <button (click)="reiniciar()">Reiniciar</button>
-      <button (click)="volverAJuegos()">Volver</button>
+    <div
+      class="palabra"
+      [class.turno-activo]="puedeJugar && !juegoTerminado"
+      [class.turno-espera]="!puedeJugar && !juegoTerminado">
+      <span *ngFor="let l of palabraVisible">{{ l }}</span>
     </div>
 
+    <div
+      class="panel-teclado"
+      [class.turno-activo]="puedeJugar && !juegoTerminado"
+      [class.turno-espera]="!puedeJugar && !juegoTerminado">
+
+      <div class="mensaje-central" *ngIf="!juegoTerminado">
+        <span class="label">PISTA</span>
+        <span class="valor">{{ pista }}</span>
+      </div>
+
+      <div class="turno" *ngIf="!juegoTerminado">
+        {{ puedeJugar ? 'Tu turno: adivina la palabra.' : 'Turno de tu pareja.' }}
+      </div>
+
+      <div class="mensaje-central derrota" *ngIf="juegoTerminado && !gano">
+        <span class="titulo">HAS CAÍDO</span>
+        <span class="sub">
+          La palabra era
+          <strong>{{ palabraSecreta }}</strong>
+        </span>
+      </div>
+
+      <div class="mensaje-central victoria" *ngIf="juegoTerminado && gano">
+        <span class="titulo">HAS GANADO</span>
+        <span class="sub">Has salvado al caballero</span>
+      </div>
+
+      <div class="teclado teclado-compacto">
+        <button
+          *ngFor="let letra of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')"
+          [disabled]="letrasUsadas.includes(letra) || juegoTerminado || !puedeJugar"
+          (click)="jugarLetra(letra); iniciarAudio();">
+          {{ letra }}
+        </button>
+      </div>
+
+      <div class="acciones-finales" *ngIf="juegoTerminado">
+        <button class="btn primario" (click)="reiniciar()">Jugar otra</button>
+        <button class="btn secundario" (click)="volverAJuegos()">Volver</button>
+      </div>
+
+    </div>
+
+  </section>
+
+  <div class="historial-link" *ngIf="juegoTerminado && historial.length > 0">
+    <button type="button" *ngIf="historialFinalizado.length > 0" (click)="abrirHistorial()">Ver historial de partidas</button>
+  </div>
+
+  <div class="modal-overlay" *ngIf="mostrarHistorial" (click)="cerrarHistorial()">
+    <div class="modal-content historial-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="cerrar" (click)="cerrarHistorial()">×</button>
+      <h3>Historial de partidas</h3>
+      <div class="historial-lista">
+        <article class="historial-item" *ngFor="let item of historialFinalizado">
+          <div class="historial-estado" [class.gano]="item.estado === 'GANADA'" [class.perdio]="item.estado === 'PERDIDA'">
+            {{ item.estado }}
+          </div>
+          <div class="historial-info">
+            <strong>{{ item.palabra }}</strong>
+            <span *ngIf="item.pista">Pista: {{ item.pista }}</span>
+          </div>
+        </article>
+      </div>
+      <div class="historial-acciones">
+        <button class="btn secundario" type="button" (click)="eliminarHistorial()">Eliminar historial</button>
+      </div>
+    </div>
   </div>
 
 </div>

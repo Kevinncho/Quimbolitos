@@ -1,27 +1,160 @@
 <app-header></app-header>
 <div class="contenedor_principal">
 <section class="perfiles">
-  <div class="perfil perfil-uno"></div>
-  <div class="perfil perfil-dos"></div>
+  <div
+    class="perfil perfil-uno"
+    [style.background-image]="fondoPerfilUsuario"
+    (click)="irAMiPerfil()"
+    role="button"
+    tabindex="0"
+    aria-label="Ir a mi perfil"
+  ></div>
+  <div
+    class="perfil perfil-dos"
+    [class.perfil-pareja-activa]="tieneParejaActiva"
+    [class.perfil-dos-vacio]="!tieneParejaActiva"
+    [style.background-image]="fondoPerfilPareja"
+    (click)="togglePanelPareja()"
+    role="button"
+    tabindex="0"
+    aria-label="Abrir conexion de pareja"
+  >
+    <span *ngIf="tieneParejaActiva" class="perfil-pareja-indicador"></span>
+  </div>
 </section>
 
-<div class="tarjeta-diaria">
-  <p class="pregunta"   [class.oculto]="mostrarInput" *ngIf="!mostrarInput">¿Si los gatos pudieran hablar, qué crees que dirían primero?</p>
-  <!-- Botón Responder: solo aparece si la caja NO se está mostrando -->
-  <button class="boton-responder" (click)="mostrarCaja()" *ngIf="!mostrarInput"  [class.oculto]="mostrarInput">Responder</button>
+<div *ngIf="mostrarPanelPareja" class="pareja-modal-backdrop" (click)="cerrarPanelPareja()">
+  <section class="pareja-panel" (click)="$event.stopPropagation()">
+    <button type="button" class="pareja-cerrar" (click)="cerrarPanelPareja()" aria-label="Cerrar conexion de pareja">
+      x
+    </button>
 
-  <!-- Caja de respuesta y botón Ocultar: solo aparece si se ha hecho click en Responder -->
-  <div *ngIf="mostrarInput" class="caja-respuesta" [class.visible]="mostrarInput">
+    <h2>Conexion de pareja</h2>
+
+    <p *ngIf="cargandoPareja" class="pareja-copy">Cargando tu estado de conexion...</p>
+    <p *ngIf="mensajePareja" class="pareja-feedback pareja-ok">{{ mensajePareja }}</p>
+    <p *ngIf="errorPareja" class="pareja-feedback pareja-error">{{ errorPareja }}</p>
+
+    <div *ngIf="parejaActiva" class="pareja-status-card">
+      <p class="pareja-status-title">Ya estan conectados</p>
+      <p class="pareja-copy">Tu pareja actual es <strong>{{ nombrePareja }}</strong>.</p>
+    </div>
+
+    <div *ngIf="!parejaActiva && invitacionPendienteRecibida" class="pareja-status-card">
+      <p class="pareja-status-title">Invitacion recibida</p>
+      <p class="pareja-copy">
+        <strong>{{ invitacionPendienteRecibida.usuarioUnoNombre }}</strong> quiere conectarse contigo.
+      </p>
+      <div class="pareja-actions">
+        <button type="button" class="pareja-btn pareja-btn-primary" (click)="aceptarInvitacion()" [disabled]="procesandoPareja">
+          {{ procesandoPareja ? 'Procesando...' : 'Aceptar' }}
+        </button>
+        <button type="button" class="pareja-btn" (click)="rechazarInvitacion()" [disabled]="procesandoPareja">
+          Rechazar
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="!parejaActiva && !invitacionPendienteRecibida && invitacionPendienteEnviada" class="pareja-status-card">
+      <p class="pareja-status-title">Invitacion enviada</p>
+      <p class="pareja-copy">
+        Esperando respuesta de <strong>{{ invitacionPendienteEnviada.usuarioDosNombre }}</strong>.
+      </p>
+    </div>
+
+    <div *ngIf="!parejaActiva && !invitacionPendienteRecibida && !invitacionPendienteEnviada" class="pareja-form-block">
+      <p class="pareja-copy">Escribe el correo de la persona que quieres invitar y mandale la conexion.</p>
+
+      <div class="pareja-search">
+        <input
+          type="email"
+          [(ngModel)]="emailInvitacion"
+          placeholder="correo@ejemplo.com"
+        />
+        <button type="button" class="pareja-btn pareja-btn-primary" (click)="buscarUsuarioInvitacion()" [disabled]="buscandoUsuario || !emailInvitacion.trim()">
+          {{ buscandoUsuario ? 'Buscando...' : 'Buscar' }}
+        </button>
+      </div>
+
+      <div *ngIf="usuarioEncontrado" class="pareja-user-card">
+        <div>
+          <p class="pareja-user-name">{{ usuarioEncontrado.nombre }}</p>
+          <p class="pareja-user-email">{{ usuarioEncontrado.email }}</p>
+        </div>
+        <button type="button" class="pareja-btn pareja-btn-primary" (click)="enviarInvitacion()" [disabled]="procesandoPareja">
+          {{ procesandoPareja ? 'Enviando...' : 'Enviar invitacion' }}
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="tarjeta-diaria">
+  <div class="tarjeta-diaria-top" *ngIf="!cargandoPreguntaInicio && preguntaInicio">
+    <span class="tarjeta-diaria-badge">Pregunta del dia</span>
+    <span class="tarjeta-diaria-timer">{{ tiempoRestantePregunta }}</span>
+  </div>
+
+  <p class="pregunta" *ngIf="cargandoPreguntaInicio">Cargando pregunta...</p>
+  <p class="pregunta" *ngIf="!cargandoPreguntaInicio && errorPreguntaInicio && !preguntaInicio">{{ errorPreguntaInicio }}</p>
+  <p class="pregunta" [class.oculto]="mostrarInput" *ngIf="!cargandoPreguntaInicio && !mostrarInput && preguntaInicio">
+    {{ preguntaInicio.enunciado }}
+  </p>
+  <button class="boton-responder" (click)="mostrarCaja()" *ngIf="!cargandoPreguntaInicio && !mostrarInput && preguntaInicio" [class.oculto]="mostrarInput">
+    Responder
+  </button>
+  <p class="estado-resultados" *ngIf="!cargandoPreguntaInicio && !mostrarInput && estadoResultadosTexto">
+    {{ estadoResultadosTexto }}
+  </p>
+  <button
+    class="boton-resultados"
+    [class.boton-resultados-activo]="puedeVerResultados"
+    *ngIf="!cargandoPreguntaInicio && !mostrarInput && puedeVerResultados"
+    (click)="abrirResultados()"
+  >
+    Ver resultados
+  </button>
+
+  <div *ngIf="mostrarInput && preguntaInicio" class="caja-respuesta" [class.visible]="mostrarInput">
     <textarea
       [(ngModel)]="respuesta"
-      placeholder="Escribe tu respuesta aquí..."
+      placeholder="Escribe tu respuesta aqui..."
       class="respuesta-input"
       rows="3">
     </textarea>
-    <button class="boton-enviar" (click)="enviarRespuesta()">Enviar</button>
+    <p *ngIf="errorPreguntaInicio" class="feedback-inicio error-inicio">{{ errorPreguntaInicio }}</p>
+    <p *ngIf="successPreguntaInicio" class="feedback-inicio success-inicio">{{ successPreguntaInicio }}</p>
+    <button class="boton-enviar" (click)="enviarRespuesta()" [disabled]="!respuesta.trim() || guardandoPreguntaInicio">
+      {{ guardandoPreguntaInicio ? 'Guardando...' : 'Enviar' }}
+    </button>
     <button class="boton-ocultar" (click)="ocultarCaja()">Volver</button>
   </div>
 </div>
+
+<div *ngIf="mostrarResultados" class="resultados-backdrop" (click)="cerrarResultados()">
+  <section class="resultados-panel" (click)="$event.stopPropagation()">
+    <button type="button" class="resultados-cerrar" (click)="cerrarResultados()" aria-label="Cerrar resultados">
+      x
+    </button>
+    <h2>Resultados del dia</h2>
+    <p class="resultados-pregunta">{{ preguntaInicio?.enunciado }}</p>
+
+    <div class="resultados-grid">
+      <article class="resultado-card">
+        <span class="resultado-tag">Tu respuesta</span>
+        <h3>{{ respuestaUsuarioActual?.usuarioNombre }}</h3>
+        <p>{{ respuestaUsuarioActual?.contenido }}</p>
+      </article>
+
+      <article class="resultado-card pareja">
+        <span class="resultado-tag">Respuesta de tu pareja</span>
+        <h3>{{ respuestaPareja?.usuarioNombre }}</h3>
+        <p>{{ respuestaPareja?.contenido }}</p>
+      </article>
+    </div>
+  </section>
+</div>
+
 <div class="distancia-widget" *ngIf="distanciaKm !== null">
   <p class="distancia-texto">Nuestra distancia</p>
 
@@ -37,6 +170,7 @@
 
   <p class="km">{{ distanciaKm | number:'1.0-0' }} km</p>
 </div>
+
 <div class="ritual-llave-contenedor">
   <div
     class="llave-ritual"
@@ -52,36 +186,35 @@
     </p>
   </div>
 </div>
+
 <div class="mapa-emocional">
   <h1 class="titulo_mapa_emocional">Mapa emocional</h1>
+  <p *ngIf="errorEstadoEmocional" class="error-estado-emocional">{{ errorEstadoEmocional }}</p>
 
-  <!-- Encabezados -->
   <div class="celda encabezado">Usuario</div>
   <div class="celda encabezado">Estado</div>
   <div class="celda encabezado">Emoji</div>
 
-  <!-- Filas de usuarios -->
   <ng-container *ngFor="let estado of estados; let i = index">
     <div class="celda usuario">{{ estado.usuario }}</div>
     <div class="celda estado">{{ estado.estado }}</div>
     <div
-  class="celda emoji"
-  [ngClass]="emojiColorMap[estado.emoji]"
-  (click)="toggleEmojiSelector(i)"
->
-  {{ estado.emoji }}
-
-  <div *ngIf="mostrarSelectorEmoji[i]" class="emoji-dropdown">
-    <span
-      *ngFor="let e of listaEmojis"
-      (click)="seleccionarEmoji(i, e)"
+      class="celda emoji"
+      [ngClass]="emojiColorMap[estado.emoji]"
+      (click)="toggleEmojiSelector(i)"
     >
-      {{ e }}
-    </span>
-  </div>
-</div>
+      {{ estado.emoji }}
 
+      <div *ngIf="mostrarSelectorEmoji[i]" class="emoji-dropdown">
+        <span
+          *ngFor="let e of listaEmojis"
+          (click)="seleccionarEmoji(i, e)"
+        >
+          {{ e }}
+        </span>
+      </div>
+    </div>
   </ng-container>
 </div>
-</div>
 
+</div>

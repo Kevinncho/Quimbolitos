@@ -1,0 +1,124 @@
+﻿<section class="music-page">
+  <a class="back-btn" [routerLink]="['/diario']">‹ Diario</a>
+  <a class="btn-add-song" [routerLink]="['/playlist/crear-cancion']">+ Añadir canción</a>
+
+  <div class="orden" (click)="$event.stopPropagation()">
+    <span>Orden</span>
+    <button type="button" class="orden-trigger" (click)="toggleOrden($event)">
+      {{ ordenLabel }}
+      <span class="chevron" [class.abierto]="ordenAbierto">▾</span>
+    </button>
+    <div class="orden-menu" *ngIf="ordenAbierto">
+      <button type="button" (click)="seleccionarOrden('fecha', $event)">Más recientes</button>
+      <button type="button" (click)="seleccionarOrden('usuario', $event)">Primero mi pareja</button>
+    </div>
+  </div>
+
+  <p *ngIf="cargando" class="playlist-feedback">Cargando canciones...</p>
+  <p *ngIf="error" class="playlist-feedback error">{{ error }}</p>
+  <p *ngIf="!cargando && !error && canciones.length === 0" class="playlist-feedback">
+    Todavía no hay canciones. Agrega la primera.
+  </p>
+
+  <div class="carrusel">
+    <article
+      class="cover-item"
+      *ngFor="let cancion of canciones; let i = index"
+      [class.activa]="i === indexActual"
+      [style.transform]="getTransform(i)"
+      [style.opacity]="getOpacity(i)"
+      [style.zIndex]="getZIndex(i)"
+      (click)="seleccionarCancion(i)"
+    >
+      <img class="cover-img" [src]="getImagenCancion(cancion)" [alt]="cancion.titulo" />
+      <div
+        class="acciones-img"
+        *ngIf="i === indexActual && puedeEditar(cancion)"
+        (click)="$event.stopPropagation()"
+      >
+        <button type="button" class="icon-btn" (click)="abrirEditar()">
+          <img src="/assets/editar.svg" alt="Editar" />
+        </button>
+        <button type="button" class="icon-btn" (click)="eliminarCancion()">
+          <img src="/assets/Eliminar.svg" alt="Eliminar" />
+        </button>
+      </div>
+    </article>
+  </div>
+
+  <div class="info" *ngIf="cancionActual as actual; else sinCanciones">
+    <h3>{{ actual.titulo || 'Sin canciones' }}</h3>
+    <p>{{ actual.artista || 'Agrega una canción para comenzar' }}</p>
+    <p class="dedicatoria" *ngIf="actual.dedicatoria">
+      {{ actual.dedicatoria }}
+    </p>
+  </div>
+  <ng-template #sinCanciones>
+    <div class="info">
+      <h3>Sin canciones</h3>
+      <p>Agrega una canción para comenzar</p>
+    </div>
+  </ng-template>
+
+  <div class="barra">
+    <div class="progreso" [style.width.%]="progreso"></div>
+  </div>
+
+  <div class="controles">
+    <button type="button" (click)="anterior()" [disabled]="canciones.length === 0">‹</button>
+    <button
+      type="button"
+      class="play"
+      (click)="togglePlay()"
+      [disabled]="canciones.length === 0 || !cancionActual?.audioUrl"
+    >
+      {{ isPlaying ? '⏸' : '▶' }}
+    </button>
+    <button type="button" (click)="siguiente()" [disabled]="canciones.length === 0">›</button>
+  </div>
+
+  <div class="modal-overlay" *ngIf="editandoCancion">
+    <div class="modal-content">
+      <button type="button" class="cerrar" (click)="cerrarEditar()">×</button>
+      <h2>Editar canción</h2>
+      <p class="subtitulo">Actualiza los datos de esta canción.</p>
+
+      <form (ngSubmit)="guardarEdicion()">
+        <input type="text" placeholder="Título" [(ngModel)]="editTitulo" name="editTitulo" required />
+        <input type="text" placeholder="Artista" [(ngModel)]="editArtista" name="editArtista" required />
+        <input type="text" placeholder="Álbum" [(ngModel)]="editAlbum" name="editAlbum" />
+        <textarea
+          rows="3"
+          placeholder="Dedicatoria"
+          [(ngModel)]="editDedicatoria"
+          name="editDedicatoria"
+        ></textarea>
+
+        <label class="upload">
+          Cambiar portada
+          <input type="file" accept="image/*" (change)="onEditarImagenSeleccionada($event)" />
+        </label>
+
+        <label class="upload">
+          Cambiar audio
+          <input
+            type="file"
+            accept=".mp3,.wav,.ogg,.m4a,.aac,.mpeg,.mpga,audio/*"
+            (change)="onEditarAudioSeleccionado($event)"
+          />
+        </label>
+        <p class="archivo-audio" *ngIf="editAudioNombre">Audio: {{ editAudioNombre }}</p>
+
+        <div class="imagen-preview" *ngIf="editPreview">
+          <img [src]="editPreview" alt="Vista previa" />
+        </div>
+
+        <p class="feedback error-feedback" *ngIf="errorEdicion">{{ errorEdicion }}</p>
+
+        <button type="submit" [disabled]="guardandoEdicion">
+          {{ guardandoEdicion ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</section>

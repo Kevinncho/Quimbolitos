@@ -1,0 +1,385 @@
+.diario-container {
+  padding: 11rem 2.5rem 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.diario-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.titulo_diario {
+  color: rgba(200, 230, 255, 0.95);
+  text-shadow: 0 0 12px rgba(0, 120, 255, 0.4);
+  margin: 0;
+}
+
+.subtitulo {
+  margin: 0.4rem 0 0;
+  color: rgba(210, 225, 255, 0.82);
+  max-width: 560px;
+}
+
+.acciones-header {
+  display: flex;
+  align-items: center;
+}
+
+.btn-volver {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.3rem;
+  border-radius: 999px;
+  background: rgba(8, 14, 28, 0.72);
+  color: rgba(230, 245, 255, 0.95);
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid rgba(110, 171, 255, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-volver:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow:
+    0 10px 20px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(0, 180, 255, 0.6),
+    0 0 25px rgba(0, 180, 255, 0.4);
+  border: 1px solid rgba(0, 180, 255, 0.7);
+  background: rgba(0, 40, 80, 0.8);
+}
+
+.recuerdos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.8rem;
+}
+
+.diario-feedback {
+  grid-column: 1 / -1;
+  padding: 18px 22px;
+  border-radius: 20px;
+  background: rgba(8, 14, 28, 0.72);
+  border: 1px solid rgba(110, 171, 255, 0.18);
+  text-align: center;
+  color: rgba(220, 236, 255, 0.9);
+}
+
+.empty-recuerdos {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  text-transform: none;
+}
+
+.recuerdo-card {
+  position: relative;
+  background: rgba(10, 20, 40, 0.75);
+  border-radius: 22px;
+  padding: 1rem;
+  border: 1px solid rgba(0, 170, 255, 0.18);
+  box-shadow: 0 0 20px rgba(0, 150, 255, 0.18);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.recuerdo-clickable {
+  cursor: pointer;
+}
+
+.recuerdo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(0, 190, 255, 0.25);
+}
+
+.contenido {
+  padding: 0.5rem 0 0;
+}
+
+.titulo_recuerdo {
+  margin: 0 0 0.75rem;
+  color: rgba(200, 230, 255, 0.95);
+  text-shadow: 0 0 10px rgba(0, 120, 255, 0.3);
+}
+.descripcion_recuerdo{
+   color: rgba(205, 225, 255, 0.88);
+}
+.detalle-mapa {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  color: rgba(205, 225, 255, 0.88);
+  font-size: 0.95rem;
+}
+
+.detalle-mapa span {
+  display: block;
+}
+
+.fecha-lateral {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  background: rgba(1, 9, 28, 0.8);
+  padding: 9px 10px;
+  border-radius: 12px;
+  text-align: center;
+  color: #e2f0ff;
+  font-weight: 700;
+}
+
+.fecha-lateral .mes,
+.fecha-lateral .anio {
+  display: contents;
+  font-size: 0.75rem;
+}
+
+.fecha-lateral .dia {
+  display: contents;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 640px) {
+  .diario-container {
+    padding-top: 8rem;
+  }
+
+  .diario-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-volver {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Estilos para imagen y modal */
+.imagen-container {
+  width: 100%;
+  height: 200px;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background: rgba(5, 15, 35, 0.9);
+  box-shadow: 0 0 15px rgba(0, 150, 255, 0.15);
+}
+
+.imagen-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.acciones-iconos {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icono-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 200, 255, 0.4);
+  background: rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.icono-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(0, 200, 255, 0.6);
+}
+
+.icono-btn img {
+  width: 16px;
+  height: 16px;
+  filter: invert(1);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: rgba(8, 22, 45, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 25px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(0, 180, 255, 0.25);
+  box-shadow: 0 0 25px rgba(0, 120, 255, 0.25);
+}
+
+.cerrar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(8, 20, 40, 0.72);
+  backdrop-filter: blur(6px);
+  color: white;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(0, 200, 255, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.cerrar:hover {
+  background: rgba(18, 40, 75, 0.9);
+  transform: scale(1.08);
+  box-shadow: 0 0 18px rgba(0, 220, 255, 0.55);
+}
+
+.imagen-preview {
+  width: 100%;
+  height: 200px;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background: rgba(5, 15, 35, 0.9);
+  box-shadow: 0 0 15px rgba(0, 150, 255, 0.15);
+}
+
+.imagen-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.upload {
+  display: block;
+  margin-bottom: 1rem;
+  color: rgba(200, 230, 255, 0.9);
+  cursor: pointer;
+}
+
+.upload input {
+  display: none;
+}
+
+.upload::before {
+  content: '📎 ';
+}
+
+.location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.location-grid input {
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 200, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-size: 1rem;
+}
+
+.location-grid input::placeholder {
+  color: rgba(200, 230, 255, 0.6);
+}
+
+.feedback {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.error-feedback {
+  border: 1px solid rgba(255, 100, 100, 0.5);
+  background: rgba(255, 100, 100, 0.1);
+  color: rgba(255, 200, 200, 0.9);
+}
+
+.modal-content h2 {
+  color: rgba(200, 230, 255, 0.95);
+  text-shadow: 0 0 10px rgba(0, 120, 255, 0.4);
+  margin: 0 0 0.5rem;
+}
+
+.subtitulo {
+  color: rgba(210, 225, 255, 0.82);
+  margin: 0 0 1.5rem;
+}
+
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(0, 200, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.modal-content input::placeholder,
+.modal-content textarea::placeholder {
+  color: rgba(200, 230, 255, 0.6);
+}
+
+.modal-content button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(0, 200, 255, 0.8), rgba(0, 150, 255, 0.8));
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-content button[type="submit"]:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(0, 200, 255, 0.5);
+}
+
+.modal-content button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

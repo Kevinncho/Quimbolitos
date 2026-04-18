@@ -1,0 +1,53 @@
+<section class="perfil-page">
+  <div class="perfil-card">
+    <a class="back-link" [routerLink]="['/inicio']">Volver</a>
+
+    <p *ngIf="cargando" class="feedback loading-feedback">Cargando perfil...</p>
+    <p *ngIf="error" class="feedback error-feedback">{{ error }}</p>
+
+    <div class="perfil-hero" *ngIf="!cargando && !error">
+      <div class="avatar" [style.background-image]="'url(' + fotoPerfil + ')'"></div>
+
+      <div class="perfil-copy">
+        <p class="eyebrow">Mi perfil</p>
+        <h1>{{ nombre }}</h1>
+        <p class="alias">{{ '@' + alias }}</p>
+        <p class="descripcion">{{ descripcion }}</p>
+      </div>
+    </div>
+
+    <div class="datos-grid" *ngIf="!cargando && !error">
+      <article class="dato">
+        <span class="label">Nombre</span>
+        <strong>{{ nombre }}</strong>
+      </article>
+
+      <article class="dato">
+        <span class="label">Alias</span>
+        <strong>{{ alias }}</strong>
+      </article>
+
+      <article class="dato">
+        <span class="label">Correo</span>
+        <strong>{{ correo }}</strong>
+      </article>
+
+      <article class="dato">
+        <span class="label">Nacimiento</span>
+        <strong>{{ fechaNacimiento }}</strong>
+      </article>
+    </div>
+
+    <div class="actions" *ngIf="!cargando && !error">
+      <button type="button" class="secondary-button" [routerLink]="['/inicio']">
+        Ir al inicio
+      </button>
+      <button type="button" class="secondary-button edit-button" [routerLink]="['/mi-perfil/editar']">
+        Editar perfil
+      </button>
+      <button type="button" class="primary-button" (click)="cerrarSesion()">
+        Cerrar sesion
+      </button>
+    </div>
+  </div>
+</section>

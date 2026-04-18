@@ -1,21 +1,49 @@
-  <div class="login-card">
-<h2>Reino de Dos</h2>
-    <form>
-      <input type="email" placeholder="Email" class="input-field" />
-      <input type="password" placeholder="Password" class="input-field" />
+<div class="login-container">
+  <div class="login-left">
+    <h2>Reino de los Quimbolitos</h2>
+    <p>Donde los recuerdos se vuelven eternos</p>
 
-      <button type="button" class="login-btn" routerLink="/inicio">LOGIN</button>
-
-      <div class="options">
-        <a href="#">Forgot Password ?</a>
-        <a href="#">Sign Up</a>
-      </div>
-
-      <div class="divider">or login with</div>
-
-      <div class="social-login">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_(2019).png" alt="Facebook" />
-      </div>
-    </form>
+    <img src="assets/pantallainicio.jpg" alt="login" />
   </div>
 
+  <div class="login-right">
+    <h2>Entrar</h2>
+
+    <p class="registro">
+      ¿No tienes cuenta? <a [routerLink]="['/registro']">Regístrate</a>
+    </p>
+
+    <form (ngSubmit)="onLogin()">
+      <input
+        type="email"
+        placeholder="Correo..."
+        [(ngModel)]="loginData.email"
+        name="email"
+        required
+      />
+      <input
+        type="password"
+        placeholder="Contraseña..."
+        [(ngModel)]="loginData.password"
+        name="password"
+        required
+      />
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" [disabled]="isLoading">
+        {{ isLoading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+      </button>
+    </form>
+
+    <div class="social">
+      <span>O continúa con</span>
+      <div class="botones-social">
+        <button type="button">Google</button>
+        <button type="button">Apple</button>
+      </div>
+    </div>
+  </div>
+</div>

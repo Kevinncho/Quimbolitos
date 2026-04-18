@@ -1,76 +1,237 @@
 <app-header></app-header>
 
-<div *ngIf="preguntaActual" class="contenedor-pregunta">
-  <div class="panel-pregunta-solido">
+<div class="contenedor-pregunta">
+  <div *ngIf="isLoading" class="panel-pregunta-solido estado-panel">
+    <div class="loader" aria-hidden="true"></div>
+    <p class="loader-text">Cargando pregunta...</p>
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage && !pregunta" class="panel-pregunta-solido estado-panel">
+    <p>{{ errorMessage }}</p>
+    <button class="btn-secundario" (click)="volverAPreguntas()">Volver</button>
+  </div>
+
+  <div *ngIf="pregunta" class="panel-pregunta-solido">
+    <div class="topbar-pregunta">
+      <a class="back-link" [routerLink]="['/preguntas']">Volver a preguntas</a>
+
+      <div class="navegacion-preguntas">
+        <button
+          type="button"
+          class="nav-pregunta-btn"
+          [disabled]="!puedeIrAnterior"
+          (click)="irAPreguntaAnterior()"
+          aria-label="Ir a la pregunta anterior"
+        >
+          ‹
+        </button>
+        <span class="nav-indicador">{{ posicionPreguntaNavegacion }} / {{ totalPreguntasNavegacion }}</span>
+        <button
+          type="button"
+          class="nav-pregunta-btn"
+          [disabled]="!puedeIrSiguiente"
+          (click)="irAPreguntaSiguiente()"
+          aria-label="Ir a la siguiente pregunta"
+        >
+          ›
+        </button>
+      </div>
+    </div>
+
     <h1 class="titulo">
-      {{ preguntaActual.titulo }}
-      <span class="emoji">{{ preguntaActual.emoji }}</span>
+      <span class="titulo-icono-slot">
+        <img
+          *ngIf="getIconoPath(pregunta.subtemaIcono) as iconoPath"
+          class="titulo-icono"
+          [src]="iconoPath"
+          [alt]="pregunta.subtemaNombre"
+          (error)="ocultarIconoRoto($event)"
+        />
+      </span>
+      <span>{{ pregunta.subtemaNombre }}</span>
     </h1>
 
     <p class="pregunta">
-      {{ preguntaActual.texto }}
+      {{ pregunta.enunciado }}
     </p>
 
-    <div class="input-con-boton">
+
+    <div *ngIf="modoVisual; else respuestaTexto" class="opciones-visuales">
+      <p class="opciones-ayuda">Elige la imagen que mejor encaje contigo.</p>
+      <div class="opciones-grid">
+        <button
+          type="button"
+          class="opcion-imagen"
+          *ngFor="let opcion of opcionesImagen"
+          [class.opcion-seleccionada]="seleccionImagenId === opcion.id"
+          (click)="seleccionarOpcionImagen(opcion.id)"
+        >
+          <img [src]="opcion.src" [alt]="opcion.alt" />
+          <span class="opcion-label">{{ opcion.label }}</span>
+        </button>
+      </div>
+    </div>
+
+    <ng-template #respuestaTexto>
       <textarea
         class="respuesta-input"
         [(ngModel)]="respuesta"
         placeholder="Escribe tu respuesta aquí..."
-        rows="3">
-      </textarea>
+        rows="6"
+      ></textarea>
+    </ng-template>
 
-      <button
-        class="boton-flecha"
-        [disabled]="!respuesta || respuesta.trim().length === 0"
-        (click)="siguientePregunta()">
-        ↑
-      </button>
+    <p *ngIf="errorMessage" class="feedback error">{{ errorMessage }}</p>
+    <p *ngIf="successMessage" class="feedback success">{{ successMessage }}</p>
+
+    <div class="acciones">
+      <div *ngIf="esAdmin" class="acciones-admin">
+        <button type="button" class="admin-action-btn edit" (click)="abrirModalEdicion()">
+          <span>Editar</span>
+        </button>
+        <button type="button" class="admin-action-btn delete" (click)="eliminarPreguntaActual()">
+          <span>Eliminar</span>
+        </button>
+      </div>
+
+      <div class="acciones-principales">
+        <button class="btn-secundario" (click)="volverAPreguntas()">Cancelar</button>
+        <button
+          class="btn-responder-enviar"
+          [disabled]="!respuesta.trim() || isSending"
+          (click)="enviarRespuesta()"
+        >
+          {{ isSending ? 'Enviando...' : 'Enviar respuesta' }}
+        </button>
+      </div>
     </div>
-    <button
-  class="btn-responder-enviar"
-  *ngIf="indicePregunta === preguntas.length - 1"
-  [disabled]="!respuesta || respuesta.trim().length === 0"
-  (click)="enviarTodo()">
-  Enviar
-</button>
   </div>
 </div>
-<div class="contenedor-contador">
-  <!-- Ir al inicio -->
-  <button
-    class="nav-btn nav-extremo"
-    (click)="irAlInicio()"
-    [disabled]="indicePregunta === 0">
-    «
-  </button>
 
-  <!-- Anterior -->
-  <button
-    class="nav-btn"
-    (click)="anteriorPregunta()"
-    [disabled]="indicePregunta === 0">
-    ‹
-  </button>
+<div *ngIf="modalEdicionAbierto" class="admin-modal-backdrop" (click)="cerrarModalEdicion()">
+  <section class="admin-modal" (click)="$event.stopPropagation()">
+    <button type="button" class="admin-modal-close" (click)="cerrarModalEdicion()" aria-label="Cerrar editor">
+      &times;
+    </button>
 
-  <!-- Contador -->
-  <p class="contador">
-    {{ indicePregunta + 1 }} / {{ preguntas.length }}
-  </p>
+    <div class="admin-modal-header">
+      <p class="admin-modal-kicker">Panel admin</p>
+      <h2>Editar contenido</h2>
+      <p>Ajusta la pregunta actual junto con su tema y subtema sin salir de esta vista.</p>
+    </div>
 
-  <!-- Siguiente -->
-  <button
-    class="nav-btn"
-    (click)="siguientePregunta()"
-    [disabled]="indicePregunta === preguntas.length - 1">
-    ›
-  </button>
+    <div *ngIf="isLoadingAdminData" class="admin-modal-loading">
+      <div class="loader" aria-hidden="true"></div>
+      <span>Cargando datos para editar...</span>
+    </div>
 
-  <!-- Ir al final -->
-  <button
-    class="nav-btn nav-extremo"
-    (click)="irAlFinal()"
-    [disabled]="indicePregunta === preguntas.length - 1">
-    »
-  </button>
+    <form *ngIf="!isLoadingAdminData" class="admin-form" (ngSubmit)="guardarEdicionAdmin()">
+      <div class="admin-section">
+        <div class="admin-section-head">
+          <h3>Pregunta</h3>
+          <span>Contenido principal</span>
+        </div>
+
+        <label class="admin-field">
+          <span>Enunciado</span>
+          <textarea
+            [(ngModel)]="formularioEdicion.pregunta"
+            name="pregunta"
+            rows="3"
+            [disabled]="isSavingAdminAction"
+            required
+          ></textarea>
+        </label>
+        <label class="admin-toggle">
+          <input
+            type="checkbox"
+            [(ngModel)]="formularioEdicion.preguntaActiva"
+            name="preguntaActiva"
+            [disabled]="isSavingAdminAction"
+          />
+          <span>Pregunta activa</span>
+        </label>
+      </div>
+
+      <div class="admin-grid">
+        <div class="admin-section">
+          <div class="admin-section-head">
+            <h3>Tema</h3>
+            <span>Organizacion general</span>
+          </div>
+
+          <label class="admin-field">
+            <span>Nombre del tema</span>
+            <input
+              type="text"
+              [(ngModel)]="formularioEdicion.tema"
+              name="tema"
+              [disabled]="isSavingAdminAction"
+              required
+            />
+          </label>
+
+          <label class="admin-field">
+            <span>Descripcion del tema</span>
+            <textarea
+              [(ngModel)]="formularioEdicion.temaDescripcion"
+              name="temaDescripcion"
+              rows="4"
+              [disabled]="isSavingAdminAction"
+            ></textarea>
+          </label>
+        </div>
+
+        <div class="admin-section">
+          <div class="admin-section-head">
+            <h3>Subtema</h3>
+            <span>Detalle de la categoria</span>
+          </div>
+
+          <label class="admin-field">
+            <span>Nombre del subtema</span>
+            <input
+              type="text"
+              [(ngModel)]="formularioEdicion.subtema"
+              name="subtema"
+              [disabled]="isSavingAdminAction"
+              required
+            />
+          </label>
+
+          <label class="admin-field">
+            <span>Descripcion del subtema</span>
+            <textarea
+              [(ngModel)]="formularioEdicion.subtemaDescripcion"
+              name="subtemaDescripcion"
+              rows="4"
+              [disabled]="isSavingAdminAction"
+            ></textarea>
+          </label>
+
+          <label class="admin-field">
+            <span>Icono</span>
+            <input
+              type="text"
+              [(ngModel)]="formularioEdicion.subtemaIcono"
+              name="subtemaIcono"
+              [disabled]="isSavingAdminAction"
+              placeholder="ejemplo: cerebro.svg"
+            />
+          </label>
+        </div>
+      </div>
+
+      <p *ngIf="adminActionMessage" class="feedback error">{{ adminActionMessage }}</p>
+
+      <div class="admin-form-actions">
+        <button type="button" class="btn-secundario admin-secondary-btn" (click)="cerrarModalEdicion()" [disabled]="isSavingAdminAction">
+          Cancelar
+        </button>
+        <button type="submit" class="admin-primary-btn" [disabled]="isSavingAdminAction">
+          {{ isSavingAdminAction ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </form>
+  </section>
 </div>
-

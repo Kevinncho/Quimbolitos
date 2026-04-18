@@ -1,0 +1,52 @@
+<section class="crear-recuerdo-page">
+  <div class="modal-overlay">
+    <div class="modal-content crear-recuerdo">
+      <button class="cerrar" type="button" (click)="cerrarFormulario()">
+        &times;
+      </button>
+
+      <h2>Nuevo Recuerdo</h2>
+      <p class="subtitulo">Guarda un momento mágico</p>
+
+      <form (ngSubmit)="guardarRecuerdo()">
+        <div class="imagen-preview" *ngIf="preview">
+          <img [src]="preview" alt="Vista previa del recuerdo">
+        </div>
+
+        <label class="upload">
+          Subir imagen
+          <input type="file" (change)="onImagenSeleccionada($event)" accept="image/*">
+        </label>
+
+        <input
+          type="text"
+          placeholder="Título del recuerdo"
+          [(ngModel)]="titulo"
+          name="titulo"
+          required
+        />
+
+        <textarea
+          placeholder="Describe este momento..."
+          [(ngModel)]="descripcion"
+          name="descripcion"
+          rows="4"
+          required
+        ></textarea>
+
+        <input
+          type="date"
+          [(ngModel)]="fecha"
+          name="fecha"
+          required
+        />
+
+        <p *ngIf="error" class="feedback error-feedback">{{ error }}</p>
+
+        <button type="submit" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : 'Guardar recuerdo' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</section>

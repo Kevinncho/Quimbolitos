@@ -5,7 +5,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 140px;
+  padding-top: 155px;
   padding-left: 24px;
   padding-right: 24px;
 }
@@ -59,6 +59,37 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+.error-juego {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(120, 22, 22, 0.35);
+  color: #ffd1d1;
+  border: 1px solid rgba(255, 166, 166, 0.25);
+  font-size: 0.85rem;
+}
+
+.estado-juego {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(15, 30, 45, 0.6);
+  border: 1px solid rgba(140,190,230,0.35);
+  color: #cfe9ff;
+  font-size: 0.9rem;
+}
+
+.aviso-juego {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(30, 60, 110, 0.35);
+  border: 1px solid rgba(120, 180, 255, 0.35);
+  color: #eaf6ff;
+  font-size: 0.85rem;
+}
+
+
 /* Botón */
 .panel-inicio button {
   margin-top: 22px;
@@ -108,6 +139,7 @@ background:
   width: 100%;
   display: flex;
   justify-content: center;
+  gap: 16px;
   margin-bottom: -5px;
 }
 
@@ -125,11 +157,24 @@ background:
   box-shadow:
     0 0 0 6px rgba(255, 255, 255, 0.08),
     0 10px 30px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Imagen */
 .perfil-uno {
-  background-image: url('../../assets/Berserk.jpg');
+  background-image: url('/assets/Berserk.jpg');
+}
+
+.perfil-dos {
+  background-image: url('/assets/sinuser.svg');
+}
+.perfil-uno:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 0 0 6px rgba(255, 255, 255, 0.08),
+    0 16px 36px rgba(0, 0, 0, 0.7),
+    0 0 18px rgba(90, 150, 255, 0.4);
 }
 .juego {
   position: relative;

@@ -1,0 +1,152 @@
+<section class="crear-pregunta-admin-page">
+  <div class="page-shell">
+    <a class="back-link" [routerLink]="['/preguntas']">Volver a preguntas</a>
+
+    <div class="intro-panel">
+      <p class="eyebrow">Panel admin</p>
+      <h1>Crear nueva pregunta</h1>
+      <p class="intro">
+        Solo los administradores pueden crear preguntas. Si eliges el modo visual, agrega dos imagenes.
+      </p>
+    </div>
+
+    <div *ngIf="noAutorizado" class="alert error">
+      {{ errorMessage }}
+    </div>
+
+    <form *ngIf="!noAutorizado" class="form-panel" (ngSubmit)="guardarPregunta()">
+      <div class="grid-two">
+        <label>
+          <span>Tema</span>
+          <select
+            [ngModel]="temaSeleccionadoId"
+            (ngModelChange)="seleccionarTema($event)"
+            name="temaSeleccionadoId"
+            [disabled]="isLoadingTemas"
+            required
+          >
+            <option [ngValue]="null">Selecciona un tema</option>
+            <option *ngFor="let tema of temas" [ngValue]="tema.id">{{ tema.nombre }}</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Subtema</span>
+          <select
+            [ngModel]="subtemaSeleccionadoId"
+            (ngModelChange)="seleccionarSubtema($event)"
+            name="subtemaSeleccionadoId"
+            [disabled]="isLoadingSubtemas || !temaSeleccionadoId"
+            required
+          >
+            <option [ngValue]="null">Selecciona un subtema</option>
+            <option *ngFor="let subtema of subtemas" [ngValue]="subtema.id">{{ subtema.nombre }}</option>
+          </select>
+        </label>
+      </div>
+
+      <label>
+        <span>Enunciado</span>
+        <input
+          type="text"
+          name="enunciado"
+          [(ngModel)]="enunciado"
+          placeholder="Escribe el enunciado de la pregunta"
+          required
+        />
+      </label>
+
+      <label>
+        <span>Descripcion (opcional)</span>
+        <textarea
+          name="descripcion"
+          [(ngModel)]="descripcion"
+          rows="4"
+          placeholder="Detalles o contexto adicional"
+        ></textarea>
+      </label>
+
+      <div class="tipo-pregunta">
+        <span>Tipo de pregunta</span>
+        <div class="tipo-opciones">
+          <button type="button" class="chip" [class.active]="tipoPregunta === 'texto'" (click)="setTipoPregunta('texto')">
+            Texto
+          </button>
+          <button type="button" class="chip" [class.active]="tipoPregunta === 'visual'" (click)="setTipoPregunta('visual')">
+            Visual
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="tipoPregunta === 'visual'" class="visual-panel">
+        <p class="helper">
+          Usa una URL completa o una ruta local en <strong>/assets/</strong>. Seleccionar archivo solo sirve de vista previa.
+        </p>
+
+        <div class="visual-grid">
+          <article class="visual-card">
+            <h3>Opcion A</h3>
+            <div class="preview" *ngIf="previewA || visual.opcionASrc">
+              <img [src]="previewA || visual.opcionASrc" alt="Vista previa opcion A" (error)="previewA = null" />
+            </div>
+            <label class="upload">
+              Imagen
+              <input type="file" accept="image/*" (change)="onImagenSeleccionada($event, 'A')" />
+            </label>
+            <p class="upload-status" *ngIf="subiendoA">Subiendo imagen...</p>
+            <label>
+              <span>URL o ruta /assets</span>
+              <input type="text" name="opcionASrc" [(ngModel)]="visual.opcionASrc" placeholder="/assets/imagen-a.jpg" />
+            </label>
+            <label>
+              <span>Etiqueta (opcional)</span>
+              <input type="text" name="opcionALabel" [(ngModel)]="visual.opcionALabel" placeholder="Opcion A" />
+            </label>
+            <label>
+              <span>Texto alternativo</span>
+              <input type="text" name="opcionAAlt" [(ngModel)]="visual.opcionAAlt" placeholder="Describe la imagen" />
+            </label>
+          </article>
+
+          <article class="visual-card">
+            <h3>Opcion B</h3>
+            <div class="preview" *ngIf="previewB || visual.opcionBSrc">
+              <img [src]="previewB || visual.opcionBSrc" alt="Vista previa opcion B" (error)="previewB = null" />
+            </div>
+            <label class="upload">
+              Imagen
+              <input type="file" accept="image/*" (change)="onImagenSeleccionada($event, 'B')" />
+            </label>
+            <p class="upload-status" *ngIf="subiendoB">Subiendo imagen...</p>
+            <label>
+              <span>URL o ruta /assets</span>
+              <input type="text" name="opcionBSrc" [(ngModel)]="visual.opcionBSrc" placeholder="/assets/imagen-b.jpg" />
+            </label>
+            <label>
+              <span>Etiqueta (opcional)</span>
+              <input type="text" name="opcionBLabel" [(ngModel)]="visual.opcionBLabel" placeholder="Opcion B" />
+            </label>
+            <label>
+              <span>Texto alternativo</span>
+              <input type="text" name="opcionBAlt" [(ngModel)]="visual.opcionBAlt" placeholder="Describe la imagen" />
+            </label>
+          </article>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage && !noAutorizado" class="alert error">
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="alert success">
+        {{ successMessage }}
+      </div>
+
+      <div class="actions">
+        <button type="button" class="secondary-button" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="primary-button" [disabled]="isSaving || subiendoA || subiendoB">
+          {{ isSaving ? 'Guardando...' : 'Guardar pregunta' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

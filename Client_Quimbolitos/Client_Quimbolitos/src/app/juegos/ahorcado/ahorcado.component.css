@@ -5,7 +5,7 @@
   width: 100vw;
   min-height: 100vh;
 
-  background-image: url('../../../assets/ahorcadoQui.png');
+  background-image: url('/assets/ahorcadoQui.png');
 
   /* ESTO ES LO IMPORTANTE */
  background-size: cover;        /* ocupa TODA la pantalla */
@@ -20,21 +20,111 @@ background-position: center -220px;
   background-color:rgba(0, 0, 0, 0.6);
 }
 
+.perfiles-juego {
+  position: absolute;
+  top: 190px;
+  left: 40px;
 
+  display: flex;
+  flex-direction: row; /* 👈 en fila */
+  gap: 18px;
+
+  z-index: 10;
+}
+
+
+.zona-juego {
+  width: min(760px, 94vw);
+  min-height: calc(100vh - 250px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.zona-juego.turno-activo {
+  padding-top: 0;
+}
+
+.zona-juego.turno-espera {
+  padding-top: 18px;
+}
+
+.perfil-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.nombre-perfil {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  color: rgba(207, 233, 255, 0.85);
+  text-align: center;
+}
+
+.perfiles-juego .perfil {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid #2e3f5c;
+  background-size: cover;
+  background-position: center;
+  box-shadow:
+    0 0 0 6px rgba(255, 255, 255, 0.08),
+    0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.perfiles-juego .perfil-uno:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 0 0 6px rgba(255, 255, 255, 0.08),
+    0 16px 36px rgba(0, 0, 0, 0.7),
+    0 0 18px rgba(90, 150, 255, 0.4);
+}
+
+.ahorcado-escena::before {
+  content: '';
+  position: absolute;
+  inset: -200px;
+  background: radial-gradient(
+    circle at 60% 20%,
+    rgba(120,170,255,0.18),
+    transparent 60%
+  );
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
 
 
 .ahorcado-escena {
   position: relative;
   width: 280px;
-  height: 0px;
-  margin-top: 250px;
+  height: 190px;
   z-index: 1;   /* 👈 CABALLERO ABAJO */
   pointer-events: none;
-  opacity: 0.85;
   /* atmósfera */
   filter: blur(0.2px);
-
+ transform-origin: 50% 0%; /* 👈 CUELGA DESDE ARRIBA */
+  animation: balanceo 6s ease-in-out infinite;
+  bottom: -235px;
 }
+
+.ahorcado-escena.turno-activo {
+  margin-top: -10px;
+}
+
+.ahorcado-escena.turno-espera {
+  margin-top: 42px;
+}
+@keyframes balanceo {
+  0%   { transform: rotate(-0.8deg); }
+  50%  { transform: rotate(0.8deg); }
+  100% { transform: rotate(-0.8deg); }
+}
+
 .ahorcado-escena::after {
   content: '';
   position: absolute;
@@ -50,63 +140,70 @@ background-position: center -220px;
 }
 /* CABEZA */
 .cabeza {
-width: 48px;
-    height: 75px;
-    top: -103px;
-    left: 34%;
+width: 693px;
+    height: 671px;
+    top: -222px;
+    left: 39%;
   transform: translateX(-50%);
-  background-image: url('../../../assets/cabeza3.png');
+  background-image: url('/assets/cabeza4.png');
 }
 /* TORSO */
 .torso {
-    width: 160px;
-    height: 160px;
-  top: -60px;
-    left: 35%;
+ width: 670px;
+    height: 710px;
+    top: -221px;
+    left: 39%;
   transform: translateX(-50%);
-  background-image: url('../../../assets/torso.png');
+  background-image: url('/assets/torso3.png');
+ filter:
+    brightness(1.05)
+    contrast(1.15)
+    saturate(1.08);
 }
 /* BRAZO IZQUIERDO */
 .brazo.izq {
-    width: 90px;
-    height: 150px;
-    top: -60px;
-    left: -4px;
-  background-image: url('../../../assets/mano_izq.png');
+width: 643px;
+    height: 607px;
+    top: -226px;
+    left: -212px;
+  background-image: url('/assets/brazo_izq3.png');
 }
 /* BRAZO DERECHO */
 .brazo.der {
-width: 97px;
-    height: 150px;
-    top: -56px;
-    right: 86px;
-  background-image: url('../../../assets/mano_der.png');
+    width: 657px;
+    height: 700px;
+    top: -230px;
+    right: -150px;
+  background-image: url('/assets/brazo_der3.png');
 }
 /* PIERNA DERECHA */
 .piernas {
-    width: 70px;
-    height: 160px;
-    top: 35px;
-    left: 48%;
+ width: 630px;
+    height: 650px;
+    top: -214px;
+    left: 61%;
   transform: translateX(-60%);
-  background-image: url('../../../assets/pierna_der.png');
+  background-image: url('/assets/pierna_der3.png');
 }
 /* PIERNA IZQUIERDA */
 .pierna.izq {
-width: 95px;
-    height: 160px;
-    top: 35px;
-    left: 9%;
+width: 642px;
+    height: 612px;
+    top: -218px;
+    left: -100%;
   transform: translateX(10%);
-  background-image: url('../../../assets/pierna_izq.png');
+  background-image: url('/assets/pierna_izq3.png');
 }
 .parte {
   position: absolute;
   background-repeat: no-repeat;
   background-size: contain;
    opacity: 0;
-  filter: blur(6px);
-  animation: aparecer 0.5s ease-out forwards;
+  filter:
+    drop-shadow(-18px 0 25px rgba(255, 180, 80, 0.25)) /* farol */
+    drop-shadow(10px 0 30px rgba(120, 170, 255, 0.15)); /* luna */
+
+   animation: aparecer 0.5s ease-out forwards;
 }
 
 @keyframes aparecer {
@@ -123,8 +220,18 @@ width: 95px;
   justify-content: center;
   gap: 20px;
 
-  margin-top: 6px;
-  margin-bottom: 8px;
+  margin-top: -18px;
+  margin-bottom: 10px;
+}
+
+.palabra.turno-activo {
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.palabra.turno-espera {
+  margin-top: 10px;
+  margin-bottom: 12px;
 }
 
 .palabra span {
@@ -144,10 +251,28 @@ width: 95px;
     0 0 8px rgba(150,200,255,0.8);
 }
 
+.panel-teclado {
+  position: relative;
+  z-index: 5;
+  width: min(560px, 92vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0;
+}
+
+.panel-teclado.turno-activo {
+  margin-top: 0;
+}
+
+.panel-teclado.turno-espera {
+  margin-top: 0;
+}
+
 .teclado {
    position: relative;
   z-index: 5;
-  margin-top: 28px;
+  margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
   gap: 10px;
@@ -160,8 +285,16 @@ width: 95px;
   justify-content: center;
 
   gap: 10px 12px;
-  margin: 14px auto 0;
+  margin: 8px auto 0;
 
+}
+
+.panel-teclado.turno-activo .teclado.teclado-compacto {
+  margin-top: 8px;
+}
+
+.panel-teclado.turno-espera .teclado.teclado-compacto {
+  margin-top: 8px;
 }
 .teclado button {
   height: 44px;
@@ -201,15 +334,6 @@ width: 95px;
   box-shadow: none;
 }
 
-.ganar {
-  color: green;
-  font-weight: bold;
-}
-
-.perder {
-  color: red;
-  font-weight: bold;
-}
 .pista {
    position: relative;
   z-index: 5;
@@ -233,4 +357,294 @@ background:
   box-shadow:
     0 10px 28px rgba(0,0,0,0.7);
   letter-spacing: 2px;
+}
+.mensaje-central {
+  position: relative;
+  z-index: 5;
+  width: min(440px, 92vw);
+  margin: 0 0 10px;
+  padding: 14px 32px;
+
+  background:
+    linear-gradient(145deg, #2e3f5cdb, #1c2a3fa1);
+  backdrop-filter: blur(10px);
+
+  border-radius: 14px;
+  border: 1px solid rgba(140,190,230,0.35);
+
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  color: #cfe9ff;
+
+  box-shadow: 0 10px 28px rgba(0,0,0,0.7);
+}
+
+.mensaje-central .label {
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  opacity: 0.6;
+}
+
+.mensaje-central .valor {
+  display: block;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+}
+
+.turno {
+  margin: 0 0 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  color: rgba(207, 233, 255, 0.9);
+  text-align: center;
+}
+
+.panel-teclado.turno-activo .turno {
+  margin-bottom: 8px;
+}
+
+.panel-teclado.turno-activo .mensaje-central {
+  margin-bottom: 10px;
+}
+
+.nuevo-juego {
+  margin: 14px auto 0;
+  padding: 16px 18px;
+  max-width: 420px;
+  width: 100%;
+  border-radius: 16px;
+  background: rgba(15, 30, 45, 0.7);
+  border: 1px solid rgba(140,190,230,0.35);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nuevo-juego h3 {
+  margin: 0 0 4px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 2px;
+  font-size: 1rem;
+  color: #cfe9ff;
+  text-align: center;
+}
+
+.nuevo-juego input {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(160,200,255,0.35);
+  background: rgba(10,25,50,0.6);
+  color: #eaf6ff;
+  outline: none;
+}
+
+.acciones-nuevo {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.error-juego {
+  margin: 6px 0 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(120, 22, 22, 0.35);
+  color: #ffd1d1;
+  border: 1px solid rgba(255, 166, 166, 0.25);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.historial {
+  margin: 18px auto 40px;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  color: #cfe9ff;
+}
+
+.historial h3 {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 2px;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.historial-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.historial-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(15, 30, 45, 0.65);
+  border: 1px solid rgba(140,190,230,0.3);
+}
+
+.historial-estado {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.historial-estado.gano {
+  color: #b6e6ff;
+  border: 1px solid rgba(120,200,255,0.5);
+}
+
+.historial-estado.perdio {
+  color: #ffb3b3;
+  border: 1px solid rgba(255,100,100,0.4);
+}
+
+.historial-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 0.8rem;
+}
+
+.historial-link {
+  margin: 10px 0 24px;
+  text-align: center;
+}
+
+.historial-link button {
+  background: none;
+  border: none;
+  color: #bfe0ff;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 24px 16px;
+}
+
+.historial-modal {
+  width: min(520px, 92vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px;
+  border-radius: 18px;
+  background: rgba(15, 30, 45, 0.75);
+  border: 1px solid rgba(140,190,230,0.35);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.6);
+}
+
+.historial-modal h3 {
+  margin-top: 0;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 2px;
+  color: #cfe9ff;
+}
+
+.historial-modal .cerrar {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(140,190,230,0.35);
+  background: rgba(10,25,50,0.6);
+  color: #eaf6ff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* DERROTA */
+.mensaje-central.derrota .titulo {
+  font-size: 1.5rem;
+  color: #ffb3b3;
+  text-shadow: 0 0 12px rgba(255,80,80,0.6);
+}
+
+.mensaje-central.derrota .sub {
+  opacity: 0.85;
+}
+
+/* VICTORIA */
+.mensaje-central.victoria .titulo {
+  font-size: 1.6rem;
+  color: #b6e6ff;
+  text-shadow: 0 0 14px rgba(120,200,255,0.9);
+}
+
+.mensaje-central.victoria .sub {
+  opacity: 0.9;
+}
+.acciones-finales {
+  margin-top: 20px;
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 10px 22px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn.primario {
+  background:
+    linear-gradient(
+      145deg,
+      #2e3f5c,
+      #1c2a3f
+    );
+  border: 1px solid rgba(160,200,255,0.5);
+  color: #eaf6ff;
+}
+
+.btn.secundario {
+  background: transparent;
+  border: 1px solid rgba(160,200,255,0.25);
+  color: #cfe9ff;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.estado-aviso {
+  margin: 12px auto 0;
+  padding: 16px 18px;
+  border-radius: 16px;
+  max-width: 420px;
+  text-align: center;
+  background: rgba(15, 30, 45, 0.7);
+  border: 1px solid rgba(140,190,230,0.35);
+  color: #cfe9ff;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.7);
+}
+
+.estado-aviso p {
+  margin: 0 0 12px;
 }

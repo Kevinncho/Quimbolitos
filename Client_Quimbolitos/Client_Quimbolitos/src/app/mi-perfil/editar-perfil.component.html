@@ -1,0 +1,82 @@
+<section class="perfil-page">
+  <div class="perfil-card">
+    <a class="back-link" [routerLink]="['/mi-perfil']">Volver al perfil</a>
+
+    <p *ngIf="cargando" class="feedback loading-feedback">Cargando perfil...</p>
+    <p *ngIf="error" class="feedback error-feedback">{{ error }}</p>
+    <p *ngIf="success" class="feedback success-feedback">{{ success }}</p>
+
+    <div class="perfil-hero">
+      <div class="avatar-wrapper">
+        <label
+          class="avatar avatar-edit"
+          [style.background-image]="'url(' + fotoPerfilActual + ')'"
+          for="fotoPerfilInput"
+        >
+          <span class="avatar-overlay">{{ subiendoFoto ? 'Subiendo...' : 'Cambiar foto' }}</span>
+        </label>
+        <input
+          id="fotoPerfilInput"
+          class="avatar-input"
+          type="file"
+          (change)="onFotoPerfilSeleccionada($event)"
+          accept="image/*"
+          [disabled]="subiendoFoto"
+        />
+      </div>
+
+      <div class="perfil-copy">
+        <p class="eyebrow">Editar perfil</p>
+        <h1>{{ form.nombre || 'Tu nombre' }}</h1>
+        <p class="alias">{{ '@' + aliasMostrado }}</p>
+        <p class="descripcion">{{ form.biografia || 'Completa tu perfil para que tu pareja vea mejor quien eres en este rincon del reino.' }}</p>
+      </div>
+    </div>
+
+    <form class="perfil-form" (ngSubmit)="guardarPerfil()">
+      <div class="datos-grid">
+        <label class="dato">
+          <span class="label">Nombre</span>
+          <input type="text" name="nombre" [(ngModel)]="form.nombre" maxlength="80" />
+        </label>
+
+        <label class="dato">
+          <span class="label">Alias</span>
+          <input type="text" name="alias" [(ngModel)]="form.alias" maxlength="80" placeholder="Tu sobrenombre en Quimbolitos" />
+        </label>
+
+        <label class="dato">
+          <span class="label">Correo</span>
+          <input type="email" name="email" [(ngModel)]="form.email" maxlength="120" />
+        </label>
+
+        <label class="dato">
+          <span class="label">Fecha de nacimiento</span>
+          <input type="date" name="fechaNacimiento" [(ngModel)]="form.fechaNacimiento" />
+        </label>
+
+        <label class="dato dato-full">
+          <span class="label">Biografia</span>
+          <textarea name="biografia" [(ngModel)]="form.biografia" rows="4" maxlength="500"></textarea>
+        </label>
+
+        <label class="dato dato-full">
+          <span class="label">Nueva contraseña</span>
+          <input type="password" name="password" [(ngModel)]="form.password" minlength="6" maxlength="100" placeholder="Deja vacio si no quieres cambiarla" />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="secondary-button" [routerLink]="['/mi-perfil']">
+          Cancelar
+        </button>
+        <button type="submit" class="secondary-button save-button" [disabled]="guardando || cargando">
+          {{ guardando ? 'Guardando...' : 'Guardar perfil' }}
+        </button>
+        <button type="button" class="primary-button" (click)="cerrarSesion()">
+          {{ debeReiniciarSesion ? 'Cerrar sesion y volver a entrar' : 'Cerrar sesion' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

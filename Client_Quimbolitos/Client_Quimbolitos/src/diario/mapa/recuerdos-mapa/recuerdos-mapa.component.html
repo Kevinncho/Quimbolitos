@@ -1,0 +1,120 @@
+<app-header></app-header>
+<div class="diario-container">
+  <div class="diario-header">
+    <div>
+      <h1 class="titulo_diario">Bitácora de recuerdos</h1>
+      <p class="subtitulo">Tus memorias guardadas desde el mapa</p>
+    </div>
+    <div class="acciones-header">
+      <a class="btn-volver" [routerLink]="['/diario/mapa']">Volver al mapa</a>
+    </div>
+  </div>
+
+  <div class="recuerdos-grid">
+    <p *ngIf="recuerdos.length === 0" class="diario-feedback empty-recuerdos">
+      Aún no hay recuerdos guardados desde el mapa.
+      <br>
+      Ve al mapa y crea una memoria para que aparezca aquí.
+    </p>
+
+    <div
+      class="recuerdo-card recuerdo-clickable"
+      *ngFor="let recuerdo of recuerdos"
+      [routerLink]="['/diario/mapa/bitacora', recuerdo.id]"
+    >
+      <div class="fecha-lateral">
+        <span class="mes">{{ recuerdo.fechaRecuerdo | date:'MMM' }}</span>
+        <span class="dia">{{ recuerdo.fechaRecuerdo | date:'dd' }}</span>
+        <span class="anio">{{ recuerdo.fechaRecuerdo | date:'yyyy' }}</span>
+      </div>
+
+      <div class="imagen-container">
+        <img [src]="getImagenRecuerdo(recuerdo)" [alt]="recuerdo.titulo">
+      </div>
+
+      <div class="contenido">
+        <h2 class="titulo_recuerdo">{{ recuerdo.titulo }}</h2>
+        <p class="descripcion_recuerdo">{{ recuerdo.descripcion }}</p>
+
+        <div class="detalle-mapa">
+          <span><strong>Ciudad:</strong> {{ recuerdo.ciudadNombre }}</span>
+          <span><strong>País:</strong> {{ recuerdo.paisNombre }}</span>
+         <!--<span><strong>Coordenadas:</strong> {{ recuerdo.latitud | number:'1.4-4' }}, {{ recuerdo.longitud | number:'1.4-4' }}</span>-->
+        </div>
+
+        <div class="acciones">
+          <div class="acciones-iconos">
+            <button class="icono-btn" type="button" (click)="abrirEditar(recuerdo, $event)">
+              <img src="assets/editar.svg" alt="Editar">
+            </button>
+            <button class="icono-btn" type="button" (click)="eliminarRecuerdo(recuerdo, $event)">
+              <img src="assets/Eliminar.svg" alt="Eliminar">
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="editandoRecuerdo" class="modal-overlay" (click)="cerrarEditar()">
+  <div class="modal-content crear-recuerdo" (click)="$event.stopPropagation()">
+    <button class="cerrar" type="button" (click)="cerrarEditar()">
+      &times;
+    </button>
+
+    <h2>Editar Recuerdo de Mapa</h2>
+    <p class="subtitulo">Actualiza tu recuerdo</p>
+
+    <form (ngSubmit)="guardarEdicion()">
+      <div class="imagen-preview" *ngIf="editPreview">
+        <img [src]="editPreview" alt="Vista previa del recuerdo">
+      </div>
+
+      <label class="upload">
+        Cambiar imagen
+        <input type="file" (change)="onEditarImagenSeleccionada($event)" accept="image/*">
+      </label>
+
+      <input
+        type="text"
+        placeholder="Título del recuerdo"
+        [(ngModel)]="editTitulo"
+        name="editTitulo"
+        required
+      />
+
+      <textarea
+        placeholder="Describe este momento..."
+        [(ngModel)]="editDescripcion"
+        name="editDescripcion"
+        rows="4"
+        required
+      ></textarea>
+
+      <div class="location-grid">
+        <input
+          type="text"
+          placeholder="País"
+          [(ngModel)]="editPais"
+          name="editPais"
+          required
+        />
+
+        <input
+          type="text"
+          placeholder="Ciudad"
+          [(ngModel)]="editCiudad"
+          name="editCiudad"
+          required
+        />
+      </div>
+
+      <p *ngIf="errorEdicion" class="feedback error-feedback">{{ errorEdicion }}</p>
+
+      <button type="submit" [disabled]="guardandoEdicion">
+        {{ guardandoEdicion ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+    </form>
+  </div>
+</div>

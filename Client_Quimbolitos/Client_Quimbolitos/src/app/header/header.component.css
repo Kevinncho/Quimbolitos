@@ -1,17 +1,16 @@
 /* HEADER COMPLETO PEGADO ARRIBA */
 .header {
-  position:fixed;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.5);  display: flex;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
   flex-direction: column;
-
   padding-top: 10px;
 }
 
-/* TÍTULO */
 .titulo {
   text-align: center;
   font-size: 3rem;
@@ -19,20 +18,21 @@
   padding: 15px 0;
   color: white;
 }
-.titulo span{
-	font-size: 1.5rem;
+
+.titulo span {
+  font-size: 1.5rem;
 }
 
 /* FONDO DEL NAV */
 .nav-bg {
-background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   width: 100%;
 }
 
 /* NAV EN 4 COLUMNAS IGUALES */
 .nav-principal ul {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   list-style: none;
   padding: 0;
   margin: 0;
@@ -56,4 +56,14 @@ background: rgba(0, 0, 0, 0.5);
 
 .nav-principal ul li a:hover {
   background-color: rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+  .titulo {
+    font-size: 2.2rem;
+  }
+
+  .titulo span {
+    font-size: 1.2rem;
+  }
 }

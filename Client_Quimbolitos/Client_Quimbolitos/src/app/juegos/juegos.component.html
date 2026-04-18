@@ -1,31 +1,59 @@
-<app-header></app-header>
+﻿<app-header></app-header>
 
 <div class="ahorcado-container">
 
-  <div  class="inicio">
+  <div class="inicio">
     <div class="panel-inicio">
-  <section class="perfiles">
-    <div class="perfil perfil-uno"></div>
-  </section>
-      <h2>Jugador 1</h2>
+      <section class="perfiles">
+        <div
+          class="perfil perfil-uno"
+          (click)="irAMiPerfil()"
+          role="button"
+          tabindex="0"
+          aria-label="Ir a mi perfil"
+          [style.background-image]="fondoPerfilUsuario"
+        ></div>
+        <div
+          class="perfil perfil-dos"
+          [style.background-image]="fondoPerfilPareja"
+          aria-label="Perfil de mi pareja"
+        ></div>
+      </section>
 
-      <label>Ingresa una palabra</label>
-      <input #inputPalabra type="text" />
+      <h2>Juego en pareja</h2>
 
-      <label>Ingresa una pista (opcional)</label>
-      <input
-        #inputPista
-        type="text"
-        placeholder="Ej: animal, película, lugar..."
-      />
+      <ng-container *ngIf="!partidaActiva">
+        <label>Ingresa una palabra</label>
+        <input #inputPalabra type="text" />
 
-      <button (click)="iniciarJuego(inputPalabra.value, inputPista.value)">
-        Comenzar Juego
-      </button>
+        <label>Ingresa una pista (opcional)</label>
+        <input
+          #inputPista
+          type="text"
+          placeholder="Ej: animal, película, lugar..."
+        />
+
+        <p class="error-juego" *ngIf="errorJuego">{{ errorJuego }}</p>
+
+        <button (click)="iniciarJuego(inputPalabra.value, inputPista.value)" [disabled]="iniciandoJuego">
+          {{ iniciandoJuego ? 'Iniciando...' : 'Comenzar Juego' }}
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="partidaActiva">
+        <p class="estado-juego">
+          {{ soyCreador ? 'Ya creaste la palabra. Espera a tu pareja.' : 'Tu pareja ya creo la palabra. Te toca adivinar.' }}
+        </p>
+        <p class="aviso-juego" *ngIf="!soyCreador">
+          Tu pareja inició la partida. Presiona para empezar a jugar.
+        </p>
+        <div class="acciones-activa">
+          <button (click)="irAJuegoActivo()">Jugar partida</button>
+          <button class="btn secundario" (click)="cancelarPartida()">Cancelar partida</button>
+        </div>
+      </ng-container>
 
     </div>
   </div>
 
 </div>
-
-
