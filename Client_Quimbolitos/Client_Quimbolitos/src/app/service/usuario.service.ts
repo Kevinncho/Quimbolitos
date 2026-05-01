@@ -11,6 +11,8 @@ export interface UpdateUsuarioRequest {
   fechaNacimiento?: string;
   biografia?: string;
   fotoPerfil?: string;
+  latitud?: number;
+  longitud?: number;
 }
 
 @Injectable({

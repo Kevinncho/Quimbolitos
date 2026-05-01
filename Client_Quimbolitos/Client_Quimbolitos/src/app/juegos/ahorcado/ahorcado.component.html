@@ -99,7 +99,7 @@
       </div>
 
       <div class="acciones-finales" *ngIf="juegoTerminado">
-        <button class="btn primario" (click)="reiniciar()">Jugar otra</button>
+        <button class="btn primario" (click)="reiniciar()" [disabled]="!puedeReiniciar">Jugar otra</button>
         <button class="btn secundario" (click)="volverAJuegos()">Volver</button>
       </div>
 

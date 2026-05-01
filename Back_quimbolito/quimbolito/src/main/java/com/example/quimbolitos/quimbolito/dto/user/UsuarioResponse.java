@@ -25,4 +25,6 @@ public class UsuarioResponse {
     private String fotoPerfil;
     private LocalDate fechaNacimiento;
     private String biografia;
+    private Double latitud;
+    private Double longitud;
 }

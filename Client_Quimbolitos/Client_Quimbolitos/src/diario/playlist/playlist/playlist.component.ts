@@ -1,10 +1,12 @@
-﻿import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../app/service/api.service';
 import { AuthService } from '../../../app/service/auth.service';
 import { CancionResponse, CancionService } from '../../../app/service/cancion.service';
+import { PlaylistAudioService } from '../../../app/service/playlist-audio.service';
 
 @Component({
   selector: 'app-playlist',
@@ -13,7 +15,7 @@ import { CancionResponse, CancionService } from '../../../app/service/cancion.se
   templateUrl: './playlist.component.html',
   styleUrl: './playlist.component.css'
 })
-export class PlaylistComponent implements OnInit {
+export class PlaylistComponent implements OnInit, OnDestroy {
   canciones: CancionResponse[] = [];
   cargando = false;
   error = '';
@@ -21,8 +23,6 @@ export class PlaylistComponent implements OnInit {
   ordenAbierto = false;
 
   indexActual = 0;
-
-  audioPlayer: HTMLAudioElement | null = null;
   isPlaying = false;
   duracion = 0;
   tiempoActual = 0;
@@ -39,14 +39,28 @@ export class PlaylistComponent implements OnInit {
   guardandoEdicion = false;
   errorEdicion = '';
 
+  private audioStateSubscription?: Subscription;
+
   constructor(
     private cancionService: CancionService,
     private apiService: ApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private playlistAudioService: PlaylistAudioService
   ) {}
 
   ngOnInit(): void {
+    this.audioStateSubscription = this.playlistAudioService.state$.subscribe((state) => {
+      this.isPlaying = state.isPlaying;
+      this.duracion = state.duration;
+      this.tiempoActual = state.currentTime;
+      this.syncIndiceConAudio(state.src);
+    });
+
     this.cargarCanciones();
+  }
+
+  ngOnDestroy(): void {
+    this.audioStateSubscription?.unsubscribe();
   }
 
   get cancionActual() {
@@ -233,6 +247,7 @@ export class PlaylistComponent implements OnInit {
         this.canciones = this.canciones.map((item) =>
           item.id === cancionActualizada.id ? cancionActualizada : item
         );
+        this.syncIndiceConAudio(this.playlistAudioService.snapshot.src);
         this.guardandoEdicion = false;
         this.cerrarEditar();
       },
@@ -254,10 +269,15 @@ export class PlaylistComponent implements OnInit {
       return;
     }
 
+    const audioActual = this.getAudioSrc(cancion);
+
     this.cancionService.deleteCancion(cancion.id).subscribe({
       next: () => {
         this.canciones = this.canciones.filter((item) => item.id !== cancion.id);
-        this.indexActual = 0;
+        if (this.playlistAudioService.snapshot.src === audioActual) {
+          this.playlistAudioService.stop();
+        }
+        this.indexActual = Math.min(this.indexActual, Math.max(this.canciones.length - 1, 0));
       },
       error: (error) => {
         this.error = error?.error?.message || 'No se pudo eliminar la canción.';
@@ -272,7 +292,7 @@ export class PlaylistComponent implements OnInit {
     this.cancionService.getCancionesOrden(this.ordenSeleccionado).subscribe({
       next: (canciones) => {
         this.canciones = canciones;
-        this.indexActual = 0;
+        this.syncIndiceConAudio(this.playlistAudioService.snapshot.src);
         this.cargarAudioActual();
         this.cargando = false;
       },
@@ -291,27 +311,17 @@ export class PlaylistComponent implements OnInit {
     }
 
     this.error = '';
-    this.ensureAudioPlayer();
     const src = this.getAudioSrc(cancion);
+    this.playlistAudioService.setSource(src);
 
-    if (this.audioPlayer && this.audioPlayer.src !== src) {
-      this.audioPlayer.src = src;
-      this.audioPlayer.load();
-    }
-
-    if (this.isPlaying) {
-      this.audioPlayer?.pause();
-      this.isPlaying = false;
+    if (this.isPlaying && this.playlistAudioService.snapshot.src === src) {
+      this.playlistAudioService.pause();
       return;
     }
 
-    this.audioPlayer?.play()
-      .then(() => {
-        this.isPlaying = true;
-      })
-      .catch(() => {
-        this.error = 'No se pudo reproducir el audio.';
-      });
+    this.playlistAudioService.play().catch(() => {
+      this.error = 'No se pudo reproducir el audio.';
+    });
   }
 
   get progreso(): number {
@@ -324,49 +334,36 @@ export class PlaylistComponent implements OnInit {
   private cargarAudioActual(): void {
     const cancion = this.cancionActual;
     if (!cancion?.audioUrl) {
-      this.resetAudio();
       return;
     }
 
-    this.ensureAudioPlayer();
     const src = this.getAudioSrc(cancion);
-    if (this.audioPlayer && this.audioPlayer.src !== src) {
-      this.audioPlayer.src = src;
-      this.audioPlayer.load();
-    }
+    const estabaReproduciendo = this.playlistAudioService.snapshot.isPlaying;
+    this.playlistAudioService.setSource(src);
 
-    if (this.isPlaying) {
-      this.audioPlayer?.play().catch(() => {
+    if (estabaReproduciendo) {
+      this.playlistAudioService.play().catch(() => {
         this.isPlaying = false;
       });
     }
   }
 
-  private ensureAudioPlayer(): void {
-    if (this.audioPlayer) {
+  private syncIndiceConAudio(src: string): void {
+    if (this.canciones.length === 0) {
+      this.indexActual = 0;
       return;
     }
-    this.audioPlayer = new Audio();
-    this.audioPlayer.addEventListener('timeupdate', () => {
-      this.tiempoActual = this.audioPlayer?.currentTime ?? 0;
-    });
-    this.audioPlayer.addEventListener('loadedmetadata', () => {
-      this.duracion = this.audioPlayer?.duration ?? 0;
-    });
-    this.audioPlayer.addEventListener('ended', () => {
-      this.isPlaying = false;
-      this.tiempoActual = 0;
-    });
-  }
 
-  private resetAudio(): void {
-    if (this.audioPlayer) {
-      this.audioPlayer.pause();
-      this.audioPlayer.src = '';
-      this.audioPlayer.load();
+    if (!src) {
+      this.indexActual = Math.min(this.indexActual, this.canciones.length - 1);
+      return;
     }
-    this.isPlaying = false;
-    this.tiempoActual = 0;
-    this.duracion = 0;
+
+    const indice = this.canciones.findIndex((cancion) => this.getAudioSrc(cancion) === src);
+    if (indice >= 0) {
+      this.indexActual = indice;
+    } else if (this.indexActual >= this.canciones.length) {
+      this.indexActual = 0;
+    }
   }
 }

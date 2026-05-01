@@ -151,6 +151,14 @@ public class UsuarioService {
         if (request.getFotoPerfil() != null) {
             usuario.setFotoPerfil(request.getFotoPerfil());
         }
+
+        if (request.getLatitud() != null) {
+            usuario.setLatitud(request.getLatitud());
+        }
+
+        if (request.getLongitud() != null) {
+            usuario.setLongitud(request.getLongitud());
+        }
     }
 
     private UsuarioResponse toUsuarioResponse(Usuario usuario) {
@@ -163,6 +171,8 @@ public class UsuarioService {
                 .fotoPerfil(usuario.getFotoPerfil())
                 .fechaNacimiento(usuario.getFechaNacimiento())
                 .biografia(usuario.getBiografia())
+                .latitud(usuario.getLatitud())
+                .longitud(usuario.getLongitud())
                 .build();
     }
 }

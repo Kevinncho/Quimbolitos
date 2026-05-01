@@ -123,7 +123,7 @@ export class AhorcadoComponent implements OnInit, OnDestroy {
   }
 
   reiniciar() {
-    if (!this.esCreador) {
+    if (!this.puedeReiniciar) {
       return;
     }
     this.mostrarCrear = true;
@@ -271,6 +271,15 @@ export class AhorcadoComponent implements OnInit, OnDestroy {
       return false;
     }
     return this.estadoAdivinadorId === usuario.id;
+  }
+
+  get puedeReiniciar(): boolean {
+    const usuario = this.usuarioActual;
+    if (!usuario || !this.estadoActual || !this.juegoTerminado) {
+      return false;
+    }
+
+    return this.estadoActual.creadorId === usuario.id || this.estadoActual.adivinadorId === usuario.id;
   }
 
   private get estadoAdivinadorId(): number | null {

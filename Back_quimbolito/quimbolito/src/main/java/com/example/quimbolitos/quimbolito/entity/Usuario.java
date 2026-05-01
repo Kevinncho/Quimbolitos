@@ -65,6 +65,10 @@ public class Usuario {
     @Column(length = 500)
     private String biografia;
 
+    private Double latitud;
+
+    private Double longitud;
+
     @Builder.Default
     @OneToMany(mappedBy = "usuario")
     @ToString.Exclude

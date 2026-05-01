@@ -106,6 +106,8 @@ public class AuthService {
                 .fotoPerfil(usuario.getFotoPerfil())
                 .fechaNacimiento(usuario.getFechaNacimiento())
                 .biografia(usuario.getBiografia())
+                .latitud(usuario.getLatitud())
+                .longitud(usuario.getLongitud())
                 .build();
     }
 

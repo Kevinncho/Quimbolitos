@@ -15,9 +15,13 @@ export interface ParejaResponse {
   usuarioUnoId: number;
   usuarioUnoNombre: string;
   usuarioUnoFotoPerfil?: string;
+  usuarioUnoLatitud?: number;
+  usuarioUnoLongitud?: number;
   usuarioDosId: number;
   usuarioDosNombre: string;
   usuarioDosFotoPerfil?: string;
+  usuarioDosLatitud?: number;
+  usuarioDosLongitud?: number;
 }
 
 @Injectable({

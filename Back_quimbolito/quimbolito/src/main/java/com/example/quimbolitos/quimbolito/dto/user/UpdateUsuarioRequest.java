@@ -37,4 +37,8 @@ public class UpdateUsuarioRequest {
 
     @Size(max = 255)
     private String fotoPerfil;
+
+    private Double latitud;
+
+    private Double longitud;
 }

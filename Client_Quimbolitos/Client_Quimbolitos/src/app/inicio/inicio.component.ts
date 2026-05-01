@@ -70,6 +70,8 @@ export class InicioComponent implements OnInit, OnDestroy {
   };
 
   distanciaKm: number | null = null;
+  distanciaTexto = '';
+  mostrarDistanciaReal = false;
   mensajeRefugio = '';
   editando = false;
   abriendoLlave = false;
@@ -107,7 +109,7 @@ export class InicioComponent implements OnInit, OnDestroy {
       this.usuarioLocal = usuario;
     });
 
-    this.obtenerDistancia();
+    this.actualizarUbicacionYDistancia();
     this.cargarEstadoPareja();
     this.cargarPreguntaInicio();
     this.iniciarCuentaRegresivaPregunta();
@@ -155,6 +157,10 @@ export class InicioComponent implements OnInit, OnDestroy {
 
   get tieneParejaActiva(): boolean {
     return this.parejaActiva?.estado === 'ACTIVA';
+  }
+
+  get distanciaVisible(): boolean {
+    return this.mostrarDistanciaReal && !!this.distanciaTexto;
   }
 
   get puedeVerResultados(): boolean {
@@ -338,6 +344,8 @@ export class InicioComponent implements OnInit, OnDestroy {
         if (this.parejaActiva) {
           this.cargarEstadosEmocionales();
         }
+
+        this.recalcularDistanciaPareja();
 
         this.actualizarRespuestasInicio(this.respuestasPreguntaInicio);
         if (this.parejaActiva && this.preguntaInicio) {
@@ -546,21 +554,76 @@ export class InicioComponent implements OnInit, OnDestroy {
     });
   }
 
-  obtenerDistancia(): void {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const latUsuario = pos.coords.latitude;
-      const lonUsuario = pos.coords.longitude;
+  toggleDistanciaReal(): void {
+    this.mostrarDistanciaReal = !this.mostrarDistanciaReal;
+  }
 
-      const latThalia = -12.0464;
-      const lonThalia = -77.0428;
+  private actualizarUbicacionYDistancia(): void {
+    if (!navigator.geolocation) {
+      this.distanciaTexto = 'La ubicacion no esta disponible en este dispositivo.';
+      return;
+    }
 
-      this.distanciaKm = this.calcularDistancia(
-        latUsuario,
-        lonUsuario,
-        latThalia,
-        lonThalia
-      );
-    });
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const latitud = pos.coords.latitude;
+        const longitud = pos.coords.longitude;
+        this.actualizarUsuarioLocalConUbicacion(latitud, longitud);
+
+        this.usuarioService.updateMiPerfil({ latitud, longitud }).subscribe({
+          next: (usuarioActualizado) => {
+            this.authService.saveUser(usuarioActualizado);
+            this.usuarioLocal = usuarioActualizado;
+            this.recalcularDistanciaPareja(latitud, longitud);
+            if (this.tieneParejaActiva) {
+              this.cargarEstadoPareja();
+            }
+          },
+          error: () => {
+            this.recalcularDistanciaPareja(latitud, longitud);
+          }
+        });
+      },
+      () => {
+        this.distanciaTexto = 'Activa la ubicacion para ver la distancia real.';
+      }
+    );
+  }
+
+  private recalcularDistanciaPareja(latitudActual?: number, longitudActual?: number): void {
+    if (!this.parejaActiva || !this.usuarioActual) {
+      this.distanciaKm = null;
+      this.distanciaTexto = 'Conecta a tu pareja para ver la distancia.';
+      return;
+    }
+
+    const usuario = this.usuarioActual;
+    const esUsuarioUno = usuario.id === this.parejaActiva.usuarioUnoId;
+    const latUsuario = latitudActual ?? usuario.latitud ?? (esUsuarioUno ? this.parejaActiva.usuarioUnoLatitud : this.parejaActiva.usuarioDosLatitud);
+    const lonUsuario = longitudActual ?? usuario.longitud ?? (esUsuarioUno ? this.parejaActiva.usuarioUnoLongitud : this.parejaActiva.usuarioDosLongitud);
+    const latPareja = esUsuarioUno ? this.parejaActiva.usuarioDosLatitud : this.parejaActiva.usuarioUnoLatitud;
+    const lonPareja = esUsuarioUno ? this.parejaActiva.usuarioDosLongitud : this.parejaActiva.usuarioUnoLongitud;
+
+    if (latUsuario == null || lonUsuario == null || latPareja == null || lonPareja == null) {
+      this.distanciaKm = null;
+      this.distanciaTexto = 'Esperando la ubicacion de ambos para calcular la distancia.';
+      return;
+    }
+
+    this.distanciaKm = this.calcularDistancia(latUsuario, lonUsuario, latPareja, lonPareja);
+    this.distanciaTexto = `${this.distanciaKm.toFixed(1)} km`;
+  }
+
+  private actualizarUsuarioLocalConUbicacion(latitud: number, longitud: number): void {
+    if (!this.usuarioLocal) {
+      return;
+    }
+
+    this.usuarioLocal = {
+      ...this.usuarioLocal,
+      latitud,
+      longitud
+    };
   }
 
   calcularDistancia(lat1: number, lon1: number, lat2: number, lon2: number): number {

@@ -25,7 +25,11 @@ public class ParejaResponse {
     private Long usuarioUnoId;
     private String usuarioUnoNombre;
     private String usuarioUnoFotoPerfil;
+    private Double usuarioUnoLatitud;
+    private Double usuarioUnoLongitud;
     private Long usuarioDosId;
     private String usuarioDosNombre;
     private String usuarioDosFotoPerfil;
+    private Double usuarioDosLatitud;
+    private Double usuarioDosLongitud;
 }

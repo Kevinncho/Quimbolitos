@@ -33,6 +33,8 @@ export interface UsuarioResponse {
   fotoPerfil?: string;
   fechaNacimiento: string;
   biografia?: string;
+  latitud?: number;
+  longitud?: number;
 }
 
 @Injectable({

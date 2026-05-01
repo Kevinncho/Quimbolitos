@@ -155,20 +155,26 @@
   </section>
 </div>
 
-<div class="distancia-widget" *ngIf="distanciaKm !== null">
+<div class="distancia-widget">
   <p class="distancia-texto">Nuestra distancia</p>
 
   <div class="distancia-centro">
     <div class="circulo">K</div>
 
     <div class="linea">
-      <span class="corazon">♥</span>
+      <span
+        class="corazon"
+        (click)="toggleDistanciaReal()"
+        role="button"
+        tabindex="0"
+        aria-label="Mostrar distancia real"
+      >♥</span>
     </div>
 
     <div class="circulo">T</div>
   </div>
 
-  <p class="km">{{ distanciaKm | number:'1.0-0' }} km</p>
+  <p class="km" *ngIf="distanciaVisible">{{ distanciaTexto }}</p>
 </div>
 
 <div class="ritual-llave-contenedor">

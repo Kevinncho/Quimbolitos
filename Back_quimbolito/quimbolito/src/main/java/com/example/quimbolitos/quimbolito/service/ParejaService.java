@@ -143,9 +143,13 @@ public class ParejaService {
                 .usuarioUnoId(pareja.getUsuarioUno().getId())
                 .usuarioUnoNombre(pareja.getUsuarioUno().getNombre())
                 .usuarioUnoFotoPerfil(pareja.getUsuarioUno().getFotoPerfil())
+                .usuarioUnoLatitud(pareja.getUsuarioUno().getLatitud())
+                .usuarioUnoLongitud(pareja.getUsuarioUno().getLongitud())
                 .usuarioDosId(pareja.getUsuarioDos().getId())
                 .usuarioDosNombre(pareja.getUsuarioDos().getNombre())
                 .usuarioDosFotoPerfil(pareja.getUsuarioDos().getFotoPerfil())
+                .usuarioDosLatitud(pareja.getUsuarioDos().getLatitud())
+                .usuarioDosLongitud(pareja.getUsuarioDos().getLongitud())
                 .build();
     }
 }
