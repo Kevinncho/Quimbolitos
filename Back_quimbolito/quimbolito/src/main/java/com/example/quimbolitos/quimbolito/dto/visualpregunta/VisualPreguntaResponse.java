@@ -18,7 +18,9 @@ public class VisualPreguntaResponse {
     private String opcionALabel;
     private String opcionASrc;
     private String opcionAAlt;
+    private Integer opcionAPositionY;
     private String opcionBLabel;
     private String opcionBSrc;
     private String opcionBAlt;
+    private Integer opcionBPositionY;
 }

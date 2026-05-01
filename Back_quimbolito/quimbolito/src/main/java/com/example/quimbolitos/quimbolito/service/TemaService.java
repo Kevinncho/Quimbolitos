@@ -25,7 +25,7 @@ public class TemaService {
 
     @Transactional
     public TemaResponse create(Authentication authentication, CreateTemaRequest request) {
-        accessService.requireAdmin(authentication);
+        accessService.getAuthenticatedUser(authentication);
 
         Tema tema = Tema.builder()
                 .nombre(request.getNombre())

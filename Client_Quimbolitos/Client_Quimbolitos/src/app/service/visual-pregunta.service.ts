@@ -8,18 +8,33 @@ export interface VisualPreguntaResponse {
   opcionALabel?: string | null;
   opcionASrc?: string | null;
   opcionAAlt?: string | null;
+  opcionAPositionY?: number | null;
   opcionBLabel?: string | null;
   opcionBSrc?: string | null;
   opcionBAlt?: string | null;
+  opcionBPositionY?: number | null;
 }
 
 export interface CreateVisualPreguntaRequest {
   opcionALabel?: string | null;
   opcionASrc: string;
   opcionAAlt?: string | null;
+  opcionAPositionY?: number | null;
   opcionBLabel?: string | null;
   opcionBSrc: string;
   opcionBAlt?: string | null;
+  opcionBPositionY?: number | null;
+}
+
+export interface UpdateVisualPreguntaRequest {
+  opcionALabel?: string | null;
+  opcionASrc?: string | null;
+  opcionAAlt?: string | null;
+  opcionAPositionY?: number | null;
+  opcionBLabel?: string | null;
+  opcionBSrc?: string | null;
+  opcionBAlt?: string | null;
+  opcionBPositionY?: number | null;
 }
 
 export interface VisualImagenResponse {
@@ -45,6 +60,13 @@ export class VisualPreguntaService {
     payload: CreateVisualPreguntaRequest
   ): Observable<VisualPreguntaResponse> {
     return this.apiService.post<VisualPreguntaResponse>(`/preguntas/${preguntaId}/visual`, payload);
+  }
+
+  updateVisualPregunta(
+    preguntaId: number,
+    payload: UpdateVisualPreguntaRequest
+  ): Observable<VisualPreguntaResponse> {
+    return this.apiService.put<VisualPreguntaResponse>(`/preguntas/${preguntaId}/visual`, payload);
   }
 
   uploadVisualImagen(file: File): Observable<VisualImagenResponse> {

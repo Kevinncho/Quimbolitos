@@ -12,4 +12,6 @@ public interface RespuestaRepository extends JpaRepository<Respuesta, Long> {
     List<Respuesta> findAllByPregunta_Id(Long preguntaId);
 
     Optional<Respuesta> findByPregunta_IdAndUsuario_Id(Long preguntaId, Long usuarioId);
+
+    void deleteAllByPregunta_Id(Long preguntaId);
 }

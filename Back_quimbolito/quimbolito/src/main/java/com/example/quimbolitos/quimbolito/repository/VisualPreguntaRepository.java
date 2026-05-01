@@ -12,4 +12,6 @@ public interface VisualPreguntaRepository extends JpaRepository<VisualPregunta, 
     Optional<VisualPregunta> findByPregunta_Id(Long preguntaId);
 
     List<VisualPregunta> findAllByPregunta_Subtema_Id(Long subtemaId);
+
+    void deleteByPregunta_Id(Long preguntaId);
 }

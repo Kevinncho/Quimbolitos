@@ -18,6 +18,8 @@ export interface PreguntaResponse {
   enunciado: string;
   descripcion?: string;
   activa: boolean;
+  temaId: number;
+  temaNombre: string;
   subtemaId: number;
   subtemaNombre: string;
   subtemaIcono?: string;

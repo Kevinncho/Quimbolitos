@@ -23,6 +23,8 @@ public class UpdateVisualPreguntaRequest {
     @Size(max = 300)
     private String opcionAAlt;
 
+    private Integer opcionAPositionY;
+
     @Size(max = 200)
     private String opcionBLabel;
 
@@ -31,4 +33,6 @@ public class UpdateVisualPreguntaRequest {
 
     @Size(max = 300)
     private String opcionBAlt;
+
+    private Integer opcionBPositionY;
 }

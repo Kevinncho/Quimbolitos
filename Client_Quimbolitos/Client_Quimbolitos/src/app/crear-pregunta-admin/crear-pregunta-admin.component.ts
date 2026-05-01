@@ -32,9 +32,11 @@ export class CrearPreguntaAdminComponent implements OnInit {
     opcionALabel: '',
     opcionASrc: '',
     opcionAAlt: '',
+    opcionAPositionY: 50,
     opcionBLabel: '',
     opcionBSrc: '',
-    opcionBAlt: ''
+    opcionBAlt: '',
+    opcionBPositionY: 50
   };
 
   previewA: string | null = null;
@@ -215,9 +217,11 @@ export class CrearPreguntaAdminComponent implements OnInit {
           opcionALabel: this.visual.opcionALabel?.trim() || undefined,
           opcionASrc: this.visual.opcionASrc?.trim() || '',
           opcionAAlt: this.visual.opcionAAlt?.trim() || undefined,
+          opcionAPositionY: this.normalizarPosicionVisual(this.visual.opcionAPositionY),
           opcionBLabel: this.visual.opcionBLabel?.trim() || undefined,
           opcionBSrc: this.visual.opcionBSrc?.trim() || '',
-          opcionBAlt: this.visual.opcionBAlt?.trim() || undefined
+          opcionBAlt: this.visual.opcionBAlt?.trim() || undefined,
+          opcionBPositionY: this.normalizarPosicionVisual(this.visual.opcionBPositionY)
         };
 
         this.visualPreguntaService.createVisualPregunta(pregunta.id, visualPayload).subscribe({
@@ -251,9 +255,11 @@ export class CrearPreguntaAdminComponent implements OnInit {
       opcionALabel: '',
       opcionASrc: '',
       opcionAAlt: '',
+      opcionAPositionY: 50,
       opcionBLabel: '',
       opcionBSrc: '',
-      opcionBAlt: ''
+      opcionBAlt: '',
+      opcionBPositionY: 50
     };
     this.setPreview('A', null);
     this.setPreview('B', null);
@@ -279,5 +285,16 @@ export class CrearPreguntaAdminComponent implements OnInit {
       URL.revokeObjectURL(this.previewB);
     }
     this.previewB = value;
+  }
+
+  getObjectPosition(positionY?: number | null): string {
+    return `center ${this.normalizarPosicionVisual(positionY)}%`;
+  }
+
+  private normalizarPosicionVisual(value?: number | null): number {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return 50;
+    }
+    return Math.max(0, Math.min(100, Math.round(value)));
   }
 }

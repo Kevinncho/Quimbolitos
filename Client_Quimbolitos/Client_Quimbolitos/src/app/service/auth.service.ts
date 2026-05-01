@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 
 export interface LoginRequest {
@@ -72,6 +73,12 @@ export class AuthService {
 
   getUser(): UsuarioResponse | null {
     return this.userSubject.value;
+  }
+
+  refreshCurrentUser(): Observable<UsuarioResponse> {
+    return this.apiService.get<UsuarioResponse>('/usuarios/me').pipe(
+      tap((user) => this.saveUser(user))
+    );
   }
 
   isLoggedIn(): boolean {

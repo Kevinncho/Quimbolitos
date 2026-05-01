@@ -17,6 +17,8 @@ public class PreguntaResponse {
     private String enunciado;
     private String descripcion;
     private Boolean activa;
+    private Long temaId;
+    private String temaNombre;
     private Long subtemaId;
     private String subtemaNombre;
     private String subtemaIcono;

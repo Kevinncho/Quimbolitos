@@ -43,6 +43,11 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.updateMyProfile(authentication, request));
     }
 
+    @PostMapping("/me/bootstrap-admin")
+    public ResponseEntity<UsuarioResponse> enableBootstrapAdmin(Authentication authentication) {
+        return ResponseEntity.ok(usuarioService.enableCurrentUserAsAdmin(authentication));
+    }
+
     @PostMapping(value = "/me/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UsuarioResponse> uploadProfilePhoto(Authentication authentication,
                                                               @RequestParam("file") MultipartFile file) {

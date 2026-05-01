@@ -230,7 +230,7 @@
     </button>
     <h2>Resultados del subtema</h2>
 
-    <div *ngIf="esSubtemaVisual; else resultadosTexto" class="visual-resultados">
+    <div *ngIf="esSubtemaVisual; else bloqueResultadosProbabilidadOTexto" class="visual-resultados">
       <div class="similitud-panel">
         <div class="similitud-ring" [style.--porcentaje]="porcentajeCoincidencia">
           <div class="similitud-valor">{{ porcentajeCoincidencia }}%</div>
@@ -261,27 +261,65 @@
       </div>
     </div>
 
-    <ng-template #resultadosTexto>
-      <p class="resultados-subtema-pregunta">{{ resultadoActual?.pregunta?.enunciado }}</p>
+    <ng-template #bloqueResultadosProbabilidadOTexto>
+      <div *ngIf="esTemaQuienEsMasProbable; else resultadosTexto" class="probabilidad-resultados">
+        <div class="similitud-panel">
+          <div class="similitud-ring probabilidad-ring" [style.--porcentaje]="porcentajeCoincidencia">
+            <div class="similitud-valor">{{ porcentajeCoincidencia }}%</div>
+            <span>aciertos en común</span>
+          </div>
+        </div>
 
-      <div class="resultados-subtema-grid">
-        <article class="resultado-card">
-          <span class="resultado-tag">Tu respuesta</span>
-          <h3>{{ resultadoActual?.respuestaUsuario?.usuarioNombre }}</h3>
-          <p>{{ resultadoActual?.respuestaUsuario?.contenido }}</p>
-        </article>
-        <article class="resultado-card pareja">
-          <span class="resultado-tag">Respuesta de tu pareja</span>
-          <h3>{{ resultadoActual?.respuestaPareja?.usuarioNombre }}</h3>
-          <p>{{ resultadoActual?.respuestaPareja?.contenido }}</p>
-        </article>
+        <div class="probabilidad-lista">
+          <article class="probabilidad-item" *ngFor="let item of itemsProbabilidad; let i = index">
+            <div class="probabilidad-item-head">
+              <div class="visual-numero">{{ i + 1 }}</div>
+              <span class="probabilidad-match" [class.match]="item.coincidencia">
+                {{ item.coincidencia ? 'Coincidieron' : 'Diferente' }}
+              </span>
+            </div>
+
+            <p class="visual-pregunta">{{ item.respuesta.pregunta.enunciado }}</p>
+
+            <div class="probabilidad-grid">
+              <article class="resultado-card">
+                <span class="resultado-tag">Tu elección</span>
+                <h3>{{ item.respuesta.respuestaUsuario?.usuarioNombre }}</h3>
+                <p>{{ resolverEtiquetaProbabilidad(item.respuesta.respuestaUsuario?.contenido) }}</p>
+              </article>
+
+              <article class="resultado-card pareja">
+                <span class="resultado-tag">Elección de tu pareja</span>
+                <h3>{{ item.respuesta.respuestaPareja?.usuarioNombre }}</h3>
+                <p>{{ resolverEtiquetaProbabilidad(item.respuesta.respuestaPareja?.contenido) }}</p>
+              </article>
+            </div>
+          </article>
+        </div>
       </div>
 
-      <div class="resultados-subtema-actions">
-        <button type="button" class="resultados-nav" (click)="anteriorResultado()">Anterior</button>
-        <span class="resultados-indice">{{ indiceResultado + 1 }} / {{ respuestasSubtema.length }}</span>
-        <button type="button" class="resultados-nav primary" (click)="siguienteResultado()">Siguiente</button>
-      </div>
+      <ng-template #resultadosTexto>
+        <p class="resultados-subtema-pregunta">{{ resultadoActual?.pregunta?.enunciado }}</p>
+
+        <div class="resultados-subtema-grid">
+          <article class="resultado-card">
+            <span class="resultado-tag">Tu respuesta</span>
+            <h3>{{ resultadoActual?.respuestaUsuario?.usuarioNombre }}</h3>
+            <p>{{ resultadoActual?.respuestaUsuario?.contenido }}</p>
+          </article>
+          <article class="resultado-card pareja">
+            <span class="resultado-tag">Respuesta de tu pareja</span>
+            <h3>{{ resultadoActual?.respuestaPareja?.usuarioNombre }}</h3>
+            <p>{{ resultadoActual?.respuestaPareja?.contenido }}</p>
+          </article>
+        </div>
+
+        <div class="resultados-subtema-actions">
+          <button type="button" class="resultados-nav" (click)="anteriorResultado()">Anterior</button>
+          <span class="resultados-indice">{{ indiceResultado + 1 }} / {{ respuestasSubtema.length }}</span>
+          <button type="button" class="resultados-nav primary" (click)="siguienteResultado()">Siguiente</button>
+        </div>
+      </ng-template>
     </ng-template>
   </section>
 </div>

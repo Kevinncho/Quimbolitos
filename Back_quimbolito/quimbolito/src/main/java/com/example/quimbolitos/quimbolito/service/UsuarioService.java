@@ -6,12 +6,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.example.quimbolitos.quimbolito.config.AdminBootstrapProperties;
 import com.example.quimbolitos.quimbolito.dto.user.UpdateUsuarioRequest;
 import com.example.quimbolitos.quimbolito.dto.user.UsuarioResponse;
+import com.example.quimbolitos.quimbolito.entity.RolUsuario;
 import com.example.quimbolitos.quimbolito.entity.Usuario;
 import com.example.quimbolitos.quimbolito.repository.UsuarioRepository;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +26,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileStorageService fileStorageService;
+    private final AdminBootstrapProperties adminBootstrapProperties;
 
     @Transactional(readOnly = true)
     public UsuarioResponse getProfile(Authentication authentication) {
@@ -84,6 +89,19 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario autenticado no encontrado"));
         usuarioRepository.delete(usuario);
+    }
+
+    @Transactional
+    public UsuarioResponse enableCurrentUserAsAdmin(Authentication authentication) {
+        if (!adminBootstrapProperties.enabled()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "La promocion admin de desarrollo no esta habilitada");
+        }
+
+        Usuario usuario = usuarioRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario autenticado no encontrado"));
+
+        usuario.setRol(RolUsuario.ADMIN);
+        return toUsuarioResponse(usuarioRepository.save(usuario));
     }
 
     @Transactional

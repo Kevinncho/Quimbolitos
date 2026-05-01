@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../service/auth.service';
@@ -12,6 +12,7 @@ import { RespuestaResponse, RespuestaService } from '../service/respuesta.servic
 import { ParejaResponse, ParejaService } from '../service/pareja.service';
 import { CreateSubtemaRequest, SubtemaResponse, SubtemaService, UpdateSubtemaRequest } from '../service/subtema.service';
 import { CreateTemaRequest, TemaResponse, TemaService, UpdateTemaRequest } from '../service/tema.service';
+import { UsuarioService } from '../service/usuario.service';
 import { VisualPreguntaResponse, VisualPreguntaService } from '../service/visual-pregunta.service';
 
 @Component({
@@ -43,6 +44,8 @@ export class PreguntasComponent implements OnInit, OnDestroy {
   errorMessage = '';
   adminActionMessage = '';
   isSavingAdminAction = false;
+  adminAccessConfirmed = false;
+  activandoAdminBootstrap = false;
   modalEdicionAbierto = false;
   modalEdicionModo: ModalMode = 'editar';
   modalEdicionTipo: EditableEntityType | null = null;
@@ -57,10 +60,12 @@ export class PreguntasComponent implements OnInit, OnDestroy {
     private preguntaService: PreguntaService,
     private respuestaService: RespuestaService,
     private parejaService: ParejaService,
+    private usuarioService: UsuarioService,
     private visualPreguntaService: VisualPreguntaService
   ) {}
 
   ngOnInit(): void {
+    this.sincronizarPermisosAdmin();
     this.cargarParejaActiva();
     this.cargarTemas();
     this.iniciarAutoRefresh();
@@ -253,8 +258,23 @@ export class PreguntasComponent implements OnInit, OnDestroy {
     return this.itemsVisuales.length > 0;
   }
 
+  get esTemaQuienEsMasProbable(): boolean {
+    const temaNombre = this.temaActual?.nombre
+      ?? this.resultadoActual?.pregunta?.temaNombre
+      ?? this.respuestasSubtema[0]?.pregunta?.temaNombre
+      ?? '';
+    return this.normalizarNombreTema(temaNombre) === 'quien es mas probable';
+  }
+
+  get temaActual(): TemaResponse | null {
+    if (!this.temaSeleccionadoId) {
+      return null;
+    }
+    return this.temas.find((tema) => tema.id === this.temaSeleccionadoId) ?? null;
+  }
+
   get esAdmin(): boolean {
-    return this.authService.getUser()?.rol === 'ADMIN';
+    return this.adminAccessConfirmed;
   }
 
   get puedeCrearSubtema(): boolean {
@@ -393,14 +413,15 @@ export class PreguntasComponent implements OnInit, OnDestroy {
         nombre,
         descripcion: this.valorOpcional(this.formularioEdicion.descripcion)
       };
-      this.temaService.updateTema(this.formularioEdicion.id, payload).subscribe({
-        next: () => {
+      this.ejecutarAccionAdmin(
+        () => this.temaService.updateTema(this.formularioEdicion.id!, payload),
+        () => {
           this.isSavingAdminAction = false;
           this.cerrarModalEdicion();
           this.cargarTemas();
         },
-        error: (error) => this.manejarErrorAdmin('No se pudo editar el tema.', error)
-      });
+        'No se pudo editar el tema.'
+      );
       return;
     }
 
@@ -410,16 +431,17 @@ export class PreguntasComponent implements OnInit, OnDestroy {
         descripcion: this.valorOpcional(this.formularioEdicion.descripcion),
         icono: this.valorOpcional(this.formularioEdicion.icono)
       };
-      this.subtemaService.updateSubtema(this.formularioEdicion.id, payload).subscribe({
-        next: () => {
+      this.ejecutarAccionAdmin(
+        () => this.subtemaService.updateSubtema(this.formularioEdicion.id!, payload),
+        () => {
           this.isSavingAdminAction = false;
           this.cerrarModalEdicion();
           if (this.temaSeleccionadoId) {
             this.cargarSubtemas(this.temaSeleccionadoId);
           }
         },
-        error: (error) => this.manejarErrorAdmin('No se pudo editar el subtema.', error)
-      });
+        'No se pudo editar el subtema.'
+      );
       return;
     }
 
@@ -428,16 +450,17 @@ export class PreguntasComponent implements OnInit, OnDestroy {
       descripcion: this.valorOpcional(this.formularioEdicion.descripcion),
       activa: this.formularioEdicion.activa
     };
-    this.preguntaService.updatePregunta(this.formularioEdicion.id, payload).subscribe({
-      next: () => {
+    this.ejecutarAccionAdmin(
+      () => this.preguntaService.updatePregunta(this.formularioEdicion.id!, payload),
+      () => {
         this.isSavingAdminAction = false;
         this.cerrarModalEdicion();
         if (this.subtemaSeleccionadoId) {
           this.cargarPreguntas(this.subtemaSeleccionadoId);
         }
       },
-      error: (error) => this.manejarErrorAdmin('No se pudo editar la pregunta.', error)
-    });
+      'No se pudo editar la pregunta.'
+    );
   }
 
   private guardarCreacion(nombre: string): void {
@@ -447,15 +470,16 @@ export class PreguntasComponent implements OnInit, OnDestroy {
         descripcion: this.valorOpcional(this.formularioEdicion.descripcion)
       };
 
-      this.temaService.createTema(payload).subscribe({
-        next: (temaCreado) => {
+      this.ejecutarAccionAdmin(
+        () => this.temaService.createTema(payload),
+        (temaCreado) => {
           this.isSavingAdminAction = false;
           this.cerrarModalEdicion();
           this.temaSeleccionadoId = temaCreado.id;
           this.cargarTemas();
         },
-        error: (error) => this.manejarErrorAdmin('No se pudo crear el tema.', error)
-      });
+        'No se pudo crear el tema.'
+      );
       return;
     }
 
@@ -466,15 +490,16 @@ export class PreguntasComponent implements OnInit, OnDestroy {
         icono: this.valorOpcional(this.formularioEdicion.icono)
       };
 
-      this.subtemaService.createSubtema(this.temaSeleccionadoId, payload).subscribe({
-        next: (subtemaCreado) => {
+      this.ejecutarAccionAdmin(
+        () => this.subtemaService.createSubtema(this.temaSeleccionadoId!, payload),
+        (subtemaCreado) => {
           this.isSavingAdminAction = false;
           this.cerrarModalEdicion();
           this.subtemaSeleccionadoId = subtemaCreado.id;
           this.cargarSubtemas(this.temaSeleccionadoId!);
         },
-        error: (error) => this.manejarErrorAdmin('No se pudo crear el subtema.', error)
-      });
+        'No se pudo crear el subtema.'
+      );
       return;
     }
 
@@ -489,10 +514,11 @@ export class PreguntasComponent implements OnInit, OnDestroy {
     }
 
     this.adminActionMessage = '';
-    this.temaService.deleteTema(tema.id).subscribe({
-      next: () => this.cargarTemas(),
-      error: (error) => this.manejarErrorVista('No se pudo eliminar el tema.', error)
-    });
+    this.ejecutarAccionAdmin(
+      () => this.temaService.deleteTema(tema.id),
+      () => this.cargarTemas(),
+      'No se pudo eliminar el tema.'
+    );
   }
 
   eliminarSubtema(subtema: SubtemaResponse, event?: Event): void {
@@ -502,14 +528,15 @@ export class PreguntasComponent implements OnInit, OnDestroy {
     }
 
     this.adminActionMessage = '';
-    this.subtemaService.deleteSubtema(subtema.id).subscribe({
-      next: () => {
+    this.ejecutarAccionAdmin(
+      () => this.subtemaService.deleteSubtema(subtema.id),
+      () => {
         if (this.temaSeleccionadoId) {
           this.cargarSubtemas(this.temaSeleccionadoId);
         }
       },
-      error: (error) => this.manejarErrorVista('No se pudo eliminar el subtema.', error)
-    });
+      'No se pudo eliminar el subtema.'
+    );
   }
 
   eliminarPregunta(pregunta: PreguntaResponse, event?: Event): void {
@@ -519,27 +546,37 @@ export class PreguntasComponent implements OnInit, OnDestroy {
     }
 
     this.adminActionMessage = '';
-    this.preguntaService.deletePregunta(pregunta.id).subscribe({
-      next: () => {
+    this.ejecutarAccionAdmin(
+      () => this.preguntaService.deletePregunta(pregunta.id),
+      () => {
         if (this.subtemaSeleccionadoId) {
           this.cargarPreguntas(this.subtemaSeleccionadoId);
         }
       },
-      error: (error) => this.manejarErrorVista('No se pudo eliminar la pregunta.', error)
-    });
+      'No se pudo eliminar la pregunta.'
+    );
   }
 
   get porcentajeCoincidencia(): number {
-    const completas = this.itemsVisuales
-      .filter((item) => item.respuesta.respuestaUsuario && item.respuesta.respuestaPareja);
+    const completas = this.respuestasComparables;
     if (completas.length === 0) {
       return 0;
     }
     const coincidencias = completas.filter((item) =>
-      this.normalizarRespuesta(item.respuesta.respuestaUsuario?.contenido) ===
-      this.normalizarRespuesta(item.respuesta.respuestaPareja?.contenido)
+      this.normalizarRespuesta(item.respuestaUsuario?.contenido) ===
+      this.normalizarRespuesta(item.respuestaPareja?.contenido)
     ).length;
     return Math.round((coincidencias / completas.length) * 100);
+  }
+
+  get itemsProbabilidad(): ProbabilidadResultadoItem[] {
+    return this.respuestasComparables.map((respuesta, index) => ({
+      respuesta,
+      index,
+      coincidencia:
+        this.normalizarRespuesta(respuesta.respuestaUsuario?.contenido) ===
+        this.normalizarRespuesta(respuesta.respuestaPareja?.contenido)
+    }));
   }
 
   opcionSeleccionada(item: RespuestaSubtema, opcionId: string, tipo: 'usuario' | 'pareja'): boolean {
@@ -559,6 +596,53 @@ export class PreguntasComponent implements OnInit, OnDestroy {
 
   private normalizarRespuesta(valor?: string | null): string {
     return (valor ?? '').trim().toLowerCase();
+  }
+
+  private get respuestasComparables(): RespuestaSubtema[] {
+    return this.respuestasSubtema
+      .filter((item) => item.respuestaUsuario && item.respuestaPareja);
+  }
+
+  resolverEtiquetaProbabilidad(valor?: string | null): string {
+    const respuesta = this.normalizarRespuesta(valor);
+    if (!this.parejaActiva) {
+      if (respuesta === 'ambos') {
+        return 'Ambos';
+      }
+      if (respuesta === 'ninguno') {
+        return 'Ninguno';
+      }
+      if (respuesta === 'usuario_uno') {
+        return 'Usuario 1';
+      }
+      if (respuesta === 'usuario_dos') {
+        return 'Usuario 2';
+      }
+      return valor?.trim() || 'Sin respuesta';
+    }
+
+    switch (respuesta) {
+      case 'usuario_uno':
+        return this.parejaActiva.usuarioUnoNombre;
+      case 'usuario_dos':
+        return this.parejaActiva.usuarioDosNombre;
+      case 'ambos':
+        return 'Ambos';
+      case 'ninguno':
+        return 'Ninguno';
+      default:
+        return valor?.trim() || 'Sin respuesta';
+    }
+  }
+
+  private normalizarNombreTema(valor?: string | null): string {
+    return (valor ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
   }
 
   private cargarVisualConfigs(subtemaId: number): void {
@@ -723,15 +807,109 @@ export class PreguntasComponent implements OnInit, OnDestroy {
     return limpio ? limpio : undefined;
   }
 
+  private sincronizarPermisosAdmin(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.adminAccessConfirmed = false;
+      return;
+    }
+
+    this.authService.refreshCurrentUser().subscribe({
+      next: (user) => {
+        this.adminAccessConfirmed = user.rol === 'ADMIN';
+      },
+      error: () => {
+        this.adminAccessConfirmed = false;
+      }
+    });
+  }
+
   private manejarErrorAdmin(message: string, error: unknown): void {
     this.isSavingAdminAction = false;
-    this.adminActionMessage = message;
+    const httpError = error as { status?: number; error?: { message?: string; errors?: Record<string, string> } } | null;
+    this.adminActionMessage = this.extraerMensajeErrorHttp(httpError, message);
     console.error(message, error);
   }
 
   private manejarErrorVista(message: string, error: unknown): void {
     this.errorMessage = message;
     console.error(message, error);
+  }
+
+  private extraerMensajeErrorHttp(
+    error: { error?: { message?: string; errors?: Record<string, string> } } | null,
+    fallback: string
+  ): string {
+    const validationErrors = error?.error?.errors;
+    if (validationErrors) {
+      const firstError = Object.values(validationErrors).find((value) => !!value?.trim());
+      if (firstError) {
+        return firstError;
+      }
+    }
+
+    const message = error?.error?.message?.trim();
+    return message || fallback;
+  }
+
+  private ejecutarAccionAdmin<T>(
+    requestFactory: () => Observable<T>,
+    onSuccess: (resultado: T) => void,
+    errorMessage: string
+  ): void {
+    requestFactory().subscribe({
+      next: (resultado) => onSuccess(resultado),
+      error: (error) => {
+        const httpError = error as { status?: number } | null;
+        if (httpError?.status === 403) {
+          this.intentarActivarAdminBootstrapYReintentar(requestFactory, onSuccess, errorMessage);
+          return;
+        }
+        this.manejarErrorAdmin(errorMessage, error);
+      }
+    });
+  }
+
+  private intentarActivarAdminBootstrapYReintentar<T>(
+    requestFactory: () => Observable<T>,
+    onSuccess: (resultado: T) => void,
+    errorMessage: string
+  ): void {
+    if (this.activandoAdminBootstrap) {
+      this.adminActionMessage = 'Se esta actualizando tu sesion de administrador. Intenta de nuevo en unos segundos.';
+      return;
+    }
+
+    this.activandoAdminBootstrap = true;
+    this.usuarioService.activarAdminBootstrap().subscribe({
+      next: (usuario) => {
+        this.activandoAdminBootstrap = false;
+        this.authService.saveUser(usuario);
+        this.adminAccessConfirmed = usuario.rol === 'ADMIN';
+        if (!this.adminAccessConfirmed) {
+          this.adminActionMessage = 'No se pudo habilitar tu cuenta como administrador.';
+          this.isSavingAdminAction = false;
+          return;
+        }
+
+        requestFactory().subscribe({
+          next: (resultado) => {
+            this.adminActionMessage = '';
+            onSuccess(resultado);
+          },
+          error: (retryError) => this.manejarErrorAdmin(errorMessage, retryError)
+        });
+      },
+      error: (bootstrapError) => {
+        this.activandoAdminBootstrap = false;
+        this.isSavingAdminAction = false;
+        this.adminAccessConfirmed = false;
+        this.sincronizarPermisosAdmin();
+        this.adminActionMessage = this.extraerMensajeErrorHttp(
+          bootstrapError as { error?: { message?: string; errors?: Record<string, string> } } | null,
+          'Tu sesion actual no tiene permisos reales de administrador. La sesion local se sincronizo y se ocultaron las acciones admin.'
+        );
+      }
+    });
   }
 }
 
@@ -745,6 +923,12 @@ type VisualResultadoItem = {
   respuesta: RespuestaSubtema;
   index: number;
   opciones: VisualOption[];
+};
+
+type ProbabilidadResultadoItem = {
+  respuesta: RespuestaSubtema;
+  index: number;
+  coincidencia: boolean;
 };
 
 type VisualOption = {

@@ -328,6 +328,12 @@
   gap: 22px;
 }
 
+.probabilidad-resultados {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
 .similitud-panel {
   display: flex;
   justify-content: center;
@@ -377,7 +383,25 @@
   color: rgba(220, 236, 255, 0.7);
 }
 
+.probabilidad-ring {
+  background: conic-gradient(
+    rgba(120, 190, 255, 0.98) calc(var(--porcentaje, 0) * 1%),
+    rgba(60, 90, 130, 0.45) 0
+  );
+}
+
+.probabilidad-ring .similitud-valor {
+  color: #d6eeff;
+  text-shadow: 0 0 16px rgba(120, 190, 255, 0.45);
+}
+
 .visual-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.probabilidad-lista {
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -390,6 +414,48 @@
   border: 1px solid rgba(110, 171, 255, 0.16);
   display: grid;
   gap: 12px;
+}
+
+.probabilidad-item {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(110, 171, 255, 0.16);
+  display: grid;
+  gap: 14px;
+}
+
+.probabilidad-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.probabilidad-match {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(255, 120, 160, 0.18);
+  border: 1px solid rgba(255, 150, 190, 0.25);
+  color: #ffd8e7;
+}
+
+.probabilidad-match.match {
+  background: rgba(82, 146, 255, 0.18);
+  border-color: rgba(120, 190, 255, 0.3);
+  color: #dcecff;
+}
+
+.probabilidad-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .visual-numero {
@@ -861,6 +927,11 @@
   }
 
   .visual-opciones {
+    grid-template-columns: 1fr;
+  }
+
+  .probabilidad-grid,
+  .resultados-subtema-grid {
     grid-template-columns: 1fr;
   }
 

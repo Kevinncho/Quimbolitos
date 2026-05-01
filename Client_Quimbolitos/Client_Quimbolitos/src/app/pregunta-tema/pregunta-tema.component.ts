@@ -2,15 +2,17 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { HeaderComponent } from '../header/header.component';
 import { AuthService } from '../service/auth.service';
 import { ApiService } from '../service/api.service';
+import { ParejaResponse, ParejaService } from '../service/pareja.service';
 import { PreguntaResponse, PreguntaService, UpdatePreguntaRequest } from '../service/pregunta.service';
 import { RespuestaResponse, RespuestaService } from '../service/respuesta.service';
 import { SubtemaService, UpdateSubtemaRequest } from '../service/subtema.service';
 import { TemaService, UpdateTemaRequest } from '../service/tema.service';
-import { VisualPreguntaResponse, VisualPreguntaService } from '../service/visual-pregunta.service';
+import { UpdateVisualPreguntaRequest, VisualPreguntaResponse, VisualPreguntaService } from '../service/visual-pregunta.service';
 
 @Component({
   selector: 'app-pregunta-tema',
@@ -29,13 +31,21 @@ export class PreguntaTemaComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   adminActionMessage = '';
+  adminAccessConfirmed = false;
   modoVisual = false;
   opcionesImagen: VisualOption[] = [];
+  opcionesProbabilidad: ProbabilidadOption[] = [];
   seleccionImagenId: string | null = null;
+  seleccionProbabilidadId: string | null = null;
+  parejaActiva: ParejaResponse | null = null;
   modalEdicionAbierto = false;
   isSavingAdminAction = false;
   isLoadingAdminData = false;
   formularioEdicion: EditFormState = this.crearFormularioVacio();
+  previewVisualAdminA: string | null = null;
+  previewVisualAdminB: string | null = null;
+  subiendoVisualAdminA = false;
+  subiendoVisualAdminB = false;
   private visualConfig: VisualPreguntaResponse | null = null;
 
   constructor(
@@ -43,6 +53,7 @@ export class PreguntaTemaComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private apiService: ApiService,
+    private parejaService: ParejaService,
     private preguntaService: PreguntaService,
     private respuestaService: RespuestaService,
     private temaService: TemaService,
@@ -51,6 +62,8 @@ export class PreguntaTemaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.sincronizarPermisosAdmin();
+    this.cargarParejaActiva();
     this.route.paramMap.subscribe({
       next: (params) => {
         const id = Number(params.get('id'));
@@ -99,7 +112,30 @@ export class PreguntaTemaComponent implements OnInit {
   }
 
   get esAdmin(): boolean {
-    return this.authService.getUser()?.rol === 'ADMIN';
+    return this.adminAccessConfirmed;
+  }
+
+  get puedeGuardarRespuesta(): boolean {
+    if (this.modoVisual) {
+      return !!this.seleccionImagenId && !this.isSending;
+    }
+    if (this.usaOpcionesProbabilidad) {
+      return !!this.seleccionProbabilidadId && !this.isSending;
+    }
+    return !!this.respuesta.trim() && !this.isSending;
+  }
+
+  get esPreguntaVisualEditable(): boolean {
+    return !!this.formularioEdicion.visualPreguntaId;
+  }
+
+  get esPreguntaQuienEsMasProbable(): boolean {
+    const tema = this.normalizarTexto(this.pregunta?.temaNombre);
+    return tema === 'quien es mas probable';
+  }
+
+  get usaOpcionesProbabilidad(): boolean {
+    return this.esPreguntaQuienEsMasProbable && this.opcionesProbabilidad.length === 4;
   }
 
   get indicePreguntaActual(): number {
@@ -176,6 +212,14 @@ export class PreguntaTemaComponent implements OnInit {
     this.respuesta = opcionId;
   }
 
+  seleccionarOpcionProbabilidad(opcionId: string): void {
+    if (!this.esPreguntaQuienEsMasProbable) {
+      return;
+    }
+    this.seleccionProbabilidadId = opcionId;
+    this.respuesta = opcionId;
+  }
+
   abrirModalEdicion(): void {
     if (!this.pregunta || !this.esAdmin) {
       return;
@@ -184,6 +228,10 @@ export class PreguntaTemaComponent implements OnInit {
     this.modalEdicionAbierto = true;
     this.isLoadingAdminData = true;
     this.adminActionMessage = '';
+    this.previewVisualAdminA = null;
+    this.previewVisualAdminB = null;
+    this.subiendoVisualAdminA = false;
+    this.subiendoVisualAdminB = false;
     this.formularioEdicion = {
       ...this.crearFormularioVacio(),
       preguntaId: this.pregunta.id,
@@ -205,14 +253,30 @@ export class PreguntaTemaComponent implements OnInit {
           temaId: subtema.temaId
         };
 
-        this.temaService.getTemaById(subtema.temaId).subscribe({
-          next: (tema) => {
+        forkJoin({
+          tema: this.temaService.getTemaById(subtema.temaId),
+          visual: this.visualPreguntaService.getByPreguntaId(this.pregunta!.id).pipe(
+            catchError(() => of(null))
+          )
+        }).subscribe({
+          next: ({ tema, visual }) => {
             this.formularioEdicion = {
               ...this.formularioEdicion,
               temaId: tema.id,
               tema: tema.nombre ?? '',
-              temaDescripcion: tema.descripcion ?? ''
+              temaDescripcion: tema.descripcion ?? '',
+              visualPreguntaId: visual?.id ?? null,
+              visualOpcionALabel: visual?.opcionALabel ?? '',
+              visualOpcionASrc: visual?.opcionASrc ?? '',
+              visualOpcionAAlt: visual?.opcionAAlt ?? '',
+              visualOpcionAPositionY: this.normalizarPosicionVisual(visual?.opcionAPositionY),
+              visualOpcionBLabel: visual?.opcionBLabel ?? '',
+              visualOpcionBSrc: visual?.opcionBSrc ?? '',
+              visualOpcionBAlt: visual?.opcionBAlt ?? '',
+              visualOpcionBPositionY: this.normalizarPosicionVisual(visual?.opcionBPositionY)
             };
+            this.previewVisualAdminA = this.resolverPreviewVisual(this.formularioEdicion.visualOpcionASrc);
+            this.previewVisualAdminB = this.resolverPreviewVisual(this.formularioEdicion.visualOpcionBSrc);
             this.isLoadingAdminData = false;
           },
           error: (error) => {
@@ -238,7 +302,59 @@ export class PreguntaTemaComponent implements OnInit {
     this.modalEdicionAbierto = false;
     this.isLoadingAdminData = false;
     this.adminActionMessage = '';
+    this.previewVisualAdminA = null;
+    this.previewVisualAdminB = null;
+    this.subiendoVisualAdminA = false;
+    this.subiendoVisualAdminB = false;
     this.formularioEdicion = this.crearFormularioVacio();
+  }
+
+  onImagenVisualAdminSeleccionada(event: Event, opcion: 'A' | 'B'): void {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0] ?? null;
+
+    if (!file) {
+      return;
+    }
+
+    if (opcion === 'A') {
+      this.subiendoVisualAdminA = true;
+    } else {
+      this.subiendoVisualAdminB = true;
+    }
+    this.adminActionMessage = '';
+
+    this.visualPreguntaService.uploadVisualImagen(file).subscribe({
+      next: (response) => {
+        const ruta = response.url ?? '';
+        const preview = this.apiService.getAssetUrl(ruta);
+
+        if (opcion === 'A') {
+          this.formularioEdicion.visualOpcionASrc = ruta;
+          if (!this.formularioEdicion.visualOpcionAAlt.trim()) {
+            this.formularioEdicion.visualOpcionAAlt = file.name;
+          }
+          this.previewVisualAdminA = preview;
+          this.subiendoVisualAdminA = false;
+        } else {
+          this.formularioEdicion.visualOpcionBSrc = ruta;
+          if (!this.formularioEdicion.visualOpcionBAlt.trim()) {
+            this.formularioEdicion.visualOpcionBAlt = file.name;
+          }
+          this.previewVisualAdminB = preview;
+          this.subiendoVisualAdminB = false;
+        }
+      },
+      error: (error) => {
+        if (opcion === 'A') {
+          this.subiendoVisualAdminA = false;
+        } else {
+          this.subiendoVisualAdminB = false;
+        }
+        this.adminActionMessage = 'No se pudo subir la imagen visual.';
+        console.error('Error uploading visual image in admin modal:', error);
+      }
+    });
   }
 
   guardarEdicionAdmin(): void {
@@ -258,6 +374,17 @@ export class PreguntaTemaComponent implements OnInit {
     if (!this.formularioEdicion.preguntaId || !this.formularioEdicion.temaId || !this.formularioEdicion.subtemaId) {
       this.adminActionMessage = 'No se pudo identificar la entidad que se quiere editar.';
       return;
+    }
+
+    if (this.esPreguntaVisualEditable) {
+      if (!this.formularioEdicion.visualOpcionASrc.trim() || !this.formularioEdicion.visualOpcionBSrc.trim()) {
+        this.adminActionMessage = 'Las preguntas visuales necesitan las dos imagenes.';
+        return;
+      }
+      if (!this.esRutaVisualValida(this.formularioEdicion.visualOpcionASrc) || !this.esRutaVisualValida(this.formularioEdicion.visualOpcionBSrc)) {
+        this.adminActionMessage = 'Las imagenes visuales deben ser una URL valida o una ruta que empiece con /assets/.';
+        return;
+      }
     }
 
     this.isSavingAdminAction = true;
@@ -280,11 +407,32 @@ export class PreguntaTemaComponent implements OnInit {
       icono: this.valorOpcional(this.formularioEdicion.subtemaIcono)
     };
 
-    forkJoin({
+    const requests: {
+      pregunta: ReturnType<PreguntaService['updatePregunta']>;
+      tema: ReturnType<TemaService['updateTema']>;
+      subtema: ReturnType<SubtemaService['updateSubtema']>;
+      visual?: ReturnType<VisualPreguntaService['updateVisualPregunta']>;
+    } = {
       pregunta: this.preguntaService.updatePregunta(this.formularioEdicion.preguntaId, preguntaPayload),
       tema: this.temaService.updateTema(this.formularioEdicion.temaId, temaPayload),
       subtema: this.subtemaService.updateSubtema(this.formularioEdicion.subtemaId, subtemaPayload)
-    }).subscribe({
+    };
+
+    if (this.esPreguntaVisualEditable) {
+      const visualPayload: UpdateVisualPreguntaRequest = {
+        opcionALabel: this.valorOpcionalONulo(this.formularioEdicion.visualOpcionALabel),
+        opcionASrc: this.valorOpcionalONulo(this.formularioEdicion.visualOpcionASrc),
+        opcionAAlt: this.valorOpcionalONulo(this.formularioEdicion.visualOpcionAAlt),
+        opcionAPositionY: this.normalizarPosicionVisual(this.formularioEdicion.visualOpcionAPositionY),
+        opcionBLabel: this.valorOpcionalONulo(this.formularioEdicion.visualOpcionBLabel),
+        opcionBSrc: this.valorOpcionalONulo(this.formularioEdicion.visualOpcionBSrc),
+        opcionBAlt: this.valorOpcionalONulo(this.formularioEdicion.visualOpcionBAlt),
+        opcionBPositionY: this.normalizarPosicionVisual(this.formularioEdicion.visualOpcionBPositionY)
+      };
+      requests.visual = this.visualPreguntaService.updateVisualPregunta(this.formularioEdicion.preguntaId, visualPayload);
+    }
+
+    forkJoin(requests).subscribe({
       next: () => {
         this.isSavingAdminAction = false;
         this.cerrarModalEdicion();
@@ -293,7 +441,13 @@ export class PreguntaTemaComponent implements OnInit {
       },
       error: (error) => {
         this.isSavingAdminAction = false;
-        this.adminActionMessage = 'No se pudieron guardar los cambios.';
+        if ((error as { status?: number } | null)?.status === 403) {
+          this.adminAccessConfirmed = false;
+          this.sincronizarPermisosAdmin();
+          this.adminActionMessage = 'Tu sesion actual no tiene permisos reales de administrador. La sesion local se sincronizo y se ocultaron las acciones admin.';
+        } else {
+          this.adminActionMessage = 'No se pudieron guardar los cambios.';
+        }
         console.error('Error saving admin changes:', error);
       }
     });
@@ -332,6 +486,7 @@ export class PreguntaTemaComponent implements OnInit {
     this.preguntaService.getPreguntaById(id).subscribe({
       next: (pregunta) => {
         this.pregunta = pregunta;
+        this.actualizarOpcionesProbabilidad();
         this.cargarPreguntasDelSubtema(pregunta.subtemaId);
         this.cargarConfigVisual(pregunta.id);
         this.cargarRespuestaGuardada(pregunta.id);
@@ -384,6 +539,7 @@ export class PreguntaTemaComponent implements OnInit {
     if (this.modoVisual && this.respuesta) {
       this.seleccionImagenId = this.respuesta;
     }
+    this.seleccionProbabilidadId = this.esOpcionProbabilidadValida(this.respuesta) ? this.respuesta : null;
   }
 
   private cargarConfigVisual(preguntaId: number): void {
@@ -407,13 +563,15 @@ export class PreguntaTemaComponent implements OnInit {
         id: 'A',
         label: config.opcionALabel?.trim() || 'Opcion A',
         src: this.normalizarSrc(config.opcionASrc),
-        alt: config.opcionAAlt?.trim() || 'Opcion A'
+        alt: config.opcionAAlt?.trim() || 'Opcion A',
+        positionY: this.normalizarPosicionVisual(config.opcionAPositionY)
       },
       {
         id: 'B',
         label: config.opcionBLabel?.trim() || 'Opcion B',
         src: this.normalizarSrc(config.opcionBSrc),
-        alt: config.opcionBAlt?.trim() || 'Opcion B'
+        alt: config.opcionBAlt?.trim() || 'Opcion B',
+        positionY: this.normalizarPosicionVisual(config.opcionBPositionY)
       }
     ].filter((opcion) => opcion.src);
   }
@@ -426,6 +584,112 @@ export class PreguntaTemaComponent implements OnInit {
     return this.apiService.getAssetUrl(trimmed);
   }
 
+  private sincronizarPermisosAdmin(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.adminAccessConfirmed = false;
+      return;
+    }
+
+    this.authService.refreshCurrentUser().subscribe({
+      next: (user) => {
+        this.adminAccessConfirmed = user.rol === 'ADMIN';
+      },
+      error: () => {
+        this.adminAccessConfirmed = false;
+      }
+    });
+  }
+
+  private cargarParejaActiva(): void {
+    const user = this.authService.getUser();
+    if (!user) {
+      this.parejaActiva = null;
+      this.opcionesProbabilidad = [];
+      return;
+    }
+
+    this.parejaService.getMyPairs().subscribe({
+      next: (parejas) => {
+        this.parejaActiva = parejas.find((pareja) => pareja.estado === 'ACTIVA') ?? null;
+        this.actualizarOpcionesProbabilidad();
+      },
+      error: () => {
+        this.parejaActiva = null;
+        this.opcionesProbabilidad = [];
+      }
+    });
+  }
+
+  private actualizarOpcionesProbabilidad(): void {
+    if (!this.esPreguntaQuienEsMasProbable) {
+      this.opcionesProbabilidad = [];
+      return;
+    }
+
+    const user = this.authService.getUser();
+    const pareja = this.parejaActiva;
+    if (!user) {
+      this.opcionesProbabilidad = [];
+      return;
+    }
+
+    if (!pareja) {
+      this.opcionesProbabilidad = [
+        {
+          id: 'USUARIO_UNO',
+          label: user.nombre,
+          fotoPerfil: this.authService.resolveFotoPerfilUrl(user.fotoPerfil),
+          layout: 'card'
+        },
+        {
+          id: 'AMBOS',
+          label: 'Ambos',
+          layout: 'wide'
+        },
+        {
+          id: 'USUARIO_DOS',
+          label: 'Tu pareja',
+          fotoPerfil: '/assets/sinuser.svg',
+          layout: 'card'
+        },
+        {
+          id: 'NINGUNO',
+          label: 'Ninguno',
+          layout: 'wide'
+        }
+      ];
+      return;
+    }
+
+    const usuarioUnoFoto = this.authService.resolveFotoPerfilUrl(pareja.usuarioUnoFotoPerfil);
+    const usuarioDosFoto = this.authService.resolveFotoPerfilUrl(pareja.usuarioDosFotoPerfil);
+
+    this.opcionesProbabilidad = [
+      {
+        id: 'USUARIO_UNO',
+        label: pareja.usuarioUnoNombre,
+        fotoPerfil: usuarioUnoFoto,
+        layout: 'card'
+      },
+      {
+        id: 'USUARIO_DOS',
+        label: pareja.usuarioDosNombre,
+        fotoPerfil: usuarioDosFoto,
+        layout: 'card'
+      },
+      {
+        id: 'AMBOS',
+        label: 'Ambos',
+        layout: 'wide'
+      },
+      {
+        id: 'NINGUNO',
+        label: 'Ninguno',
+        layout: 'wide'
+      }
+    ];
+  }
+
   private resetEstadoCarga(): void {
     this.pregunta = null;
     this.respuesta = '';
@@ -436,7 +700,9 @@ export class PreguntaTemaComponent implements OnInit {
     this.successMessage = '';
     this.modoVisual = false;
     this.opcionesImagen = [];
+    this.opcionesProbabilidad = [];
     this.seleccionImagenId = null;
+    this.seleccionProbabilidadId = null;
     this.visualConfig = null;
   }
 
@@ -452,13 +718,65 @@ export class PreguntaTemaComponent implements OnInit {
       subtemaId: null,
       subtema: '',
       subtemaDescripcion: '',
-      subtemaIcono: ''
+      subtemaIcono: '',
+      visualPreguntaId: null,
+      visualOpcionALabel: '',
+      visualOpcionASrc: '',
+      visualOpcionAAlt: '',
+      visualOpcionAPositionY: 50,
+      visualOpcionBLabel: '',
+      visualOpcionBSrc: '',
+      visualOpcionBAlt: '',
+      visualOpcionBPositionY: 50
     };
+  }
+
+  getObjectPosition(positionY?: number | null): string {
+    return `center ${this.normalizarPosicionVisual(positionY)}%`;
   }
 
   private valorOpcional(value: string): string | undefined {
     const trimmed = value.trim();
     return trimmed ? trimmed : undefined;
+  }
+
+  private valorOpcionalONulo(value: string): string | null {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+
+  private resolverPreviewVisual(src: string): string | null {
+    const trimmed = src.trim();
+    return trimmed ? this.apiService.getAssetUrl(trimmed) : null;
+  }
+
+  private esRutaVisualValida(src?: string | null): boolean {
+    const value = src?.trim() ?? '';
+    if (!value) {
+      return false;
+    }
+    return value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/assets/') || value.startsWith('assets/');
+  }
+
+  private normalizarPosicionVisual(value?: number | null): number {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return 50;
+    }
+    return Math.max(0, Math.min(100, Math.round(value)));
+  }
+
+  private normalizarTexto(value?: string | null): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  private esOpcionProbabilidadValida(value?: string | null): value is ProbabilidadOptionId {
+    return value === 'USUARIO_UNO' || value === 'AMBOS' || value === 'USUARIO_DOS' || value === 'NINGUNO';
   }
 }
 
@@ -467,6 +785,16 @@ type VisualOption = {
   label: string;
   src: string;
   alt: string;
+  positionY: number;
+};
+
+type ProbabilidadOptionId = 'USUARIO_UNO' | 'USUARIO_DOS' | 'AMBOS' | 'NINGUNO';
+
+type ProbabilidadOption = {
+  id: ProbabilidadOptionId;
+  label: string;
+  fotoPerfil?: string;
+  layout: 'card' | 'wide';
 };
 
 type EditFormState = {
@@ -481,4 +809,13 @@ type EditFormState = {
   subtema: string;
   subtemaDescripcion: string;
   subtemaIcono: string;
+  visualPreguntaId: number | null;
+  visualOpcionALabel: string;
+  visualOpcionASrc: string;
+  visualOpcionAAlt: string;
+  visualOpcionAPositionY: number;
+  visualOpcionBLabel: string;
+  visualOpcionBSrc: string;
+  visualOpcionBAlt: string;
+  visualOpcionBPositionY: number;
 };

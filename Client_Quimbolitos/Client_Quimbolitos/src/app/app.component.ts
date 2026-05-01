@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AuthService } from './service/auth.service';
 import { JuegoNotificacionService } from './service/juego-notificacion.service';
 
 @Component({
@@ -18,9 +19,21 @@ export class AppComponent implements OnInit, OnDestroy {
   private toastSub: Subscription | null = null;
   private toastTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private juegoNotificacionService: JuegoNotificacionService) {}
+  constructor(
+    private juegoNotificacionService: JuegoNotificacionService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.authService.refreshCurrentUser().subscribe({
+        error: (error) => {
+          console.warn('No se pudo sincronizar el usuario autenticado. Se cierra la sesion local.', error);
+          this.authService.logout();
+        }
+      });
+    }
+
     this.toastSub = this.juegoNotificacionService.toast$.subscribe((mensaje) => {
       this.toastMensaje = mensaje;
       this.mostrarToast = true;

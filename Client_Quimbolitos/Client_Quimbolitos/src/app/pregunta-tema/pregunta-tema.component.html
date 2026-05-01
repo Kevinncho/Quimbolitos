@@ -55,7 +55,37 @@
       {{ pregunta.enunciado }}
     </p>
 
+    <div *ngIf="usaOpcionesProbabilidad; else bloqueVisualOTexto" class="opciones-probabilidad modo-probabilidad">
+      <p class="opciones-ayuda">Elige quién es más probable.</p>
+      <div class="opciones-probabilidad-grid">
+        <button
+          type="button"
+          class="opcion-probabilidad opcion-probabilidad-card"
+          *ngFor="let opcion of opcionesProbabilidad.slice(0, 2)"
+          [class.opcion-probabilidad-seleccionada]="seleccionProbabilidadId === opcion.id"
+          (click)="seleccionarOpcionProbabilidad(opcion.id)"
+        >
+          <span class="opcion-probabilidad-avatar" *ngIf="opcion.fotoPerfil">
+            <img [src]="opcion.fotoPerfil" [alt]="opcion.label" />
+          </span>
+          <span class="opcion-probabilidad-label">{{ opcion.label }}</span>
+        </button>
+      </div>
 
+      <div class="opciones-probabilidad-stack">
+        <button
+          type="button"
+          class="opcion-probabilidad opcion-probabilidad-wide"
+          *ngFor="let opcion of opcionesProbabilidad.slice(2)"
+          [class.opcion-probabilidad-seleccionada]="seleccionProbabilidadId === opcion.id"
+          (click)="seleccionarOpcionProbabilidad(opcion.id)"
+        >
+          <span class="opcion-probabilidad-label">{{ opcion.label }}</span>
+        </button>
+      </div>
+    </div>
+
+    <ng-template #bloqueVisualOTexto>
     <div *ngIf="modoVisual; else respuestaTexto" class="opciones-visuales">
       <p class="opciones-ayuda">Elige la imagen que mejor encaje contigo.</p>
       <div class="opciones-grid">
@@ -66,11 +96,12 @@
           [class.opcion-seleccionada]="seleccionImagenId === opcion.id"
           (click)="seleccionarOpcionImagen(opcion.id)"
         >
-          <img [src]="opcion.src" [alt]="opcion.alt" />
+          <img [src]="opcion.src" [alt]="opcion.alt" [style.object-position]="getObjectPosition(opcion.positionY)" />
           <span class="opcion-label">{{ opcion.label }}</span>
         </button>
       </div>
     </div>
+    </ng-template>
 
     <ng-template #respuestaTexto>
       <textarea
@@ -98,7 +129,7 @@
         <button class="btn-secundario" (click)="volverAPreguntas()">Cancelar</button>
         <button
           class="btn-responder-enviar"
-          [disabled]="!respuesta.trim() || isSending"
+          [disabled]="!puedeGuardarRespuesta"
           (click)="enviarRespuesta()"
         >
           {{ isSending ? 'Enviando...' : 'Enviar respuesta' }}
@@ -151,6 +182,141 @@
           />
           <span>Pregunta activa</span>
         </label>
+
+        <div *ngIf="esPreguntaVisualEditable" class="admin-visual-panel">
+          <div class="admin-section-head">
+            <h3>Imagenes visuales</h3>
+            <span>Opciones de esto o aquello</span>
+          </div>
+
+          <div class="admin-visual-grid">
+            <article class="admin-visual-card">
+              <h4>Opcion A</h4>
+              <div class="admin-visual-preview" *ngIf="previewVisualAdminA || formularioEdicion.visualOpcionASrc">
+                <img
+                  [src]="previewVisualAdminA || formularioEdicion.visualOpcionASrc"
+                  alt="Vista previa opcion A"
+                  [style.object-position]="getObjectPosition(formularioEdicion.visualOpcionAPositionY)"
+                  (error)="previewVisualAdminA = null"
+                />
+              </div>
+              <label class="admin-upload">
+                Cambiar imagen
+                <input type="file" accept="image/*" (change)="onImagenVisualAdminSeleccionada($event, 'A')" />
+              </label>
+              <p class="admin-upload-status" *ngIf="subiendoVisualAdminA">Subiendo imagen...</p>
+
+              <label class="admin-field">
+                <span>URL o ruta /assets</span>
+                <input
+                  type="text"
+                  [(ngModel)]="formularioEdicion.visualOpcionASrc"
+                  name="visualOpcionASrc"
+                  [disabled]="isSavingAdminAction"
+                  placeholder="/assets/visual-preguntas/opcion-a.jpg"
+                />
+              </label>
+
+              <label class="admin-field">
+                <span>Etiqueta</span>
+                <input
+                  type="text"
+                  [(ngModel)]="formularioEdicion.visualOpcionALabel"
+                  name="visualOpcionALabel"
+                  [disabled]="isSavingAdminAction"
+                  placeholder="Opcion A"
+                />
+              </label>
+
+              <label class="admin-field">
+                <span>Texto alternativo</span>
+                <input
+                  type="text"
+                  [(ngModel)]="formularioEdicion.visualOpcionAAlt"
+                  name="visualOpcionAAlt"
+                  [disabled]="isSavingAdminAction"
+                  placeholder="Describe la imagen"
+                />
+              </label>
+
+              <label class="admin-field admin-range-field">
+                <span>Posicion vertical: {{ formularioEdicion.visualOpcionAPositionY }}%</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  [(ngModel)]="formularioEdicion.visualOpcionAPositionY"
+                  name="visualOpcionAPositionY"
+                  [disabled]="isSavingAdminAction"
+                />
+              </label>
+            </article>
+
+            <article class="admin-visual-card">
+              <h4>Opcion B</h4>
+              <div class="admin-visual-preview" *ngIf="previewVisualAdminB || formularioEdicion.visualOpcionBSrc">
+                <img
+                  [src]="previewVisualAdminB || formularioEdicion.visualOpcionBSrc"
+                  alt="Vista previa opcion B"
+                  [style.object-position]="getObjectPosition(formularioEdicion.visualOpcionBPositionY)"
+                  (error)="previewVisualAdminB = null"
+                />
+              </div>
+              <label class="admin-upload">
+                Cambiar imagen
+                <input type="file" accept="image/*" (change)="onImagenVisualAdminSeleccionada($event, 'B')" />
+              </label>
+              <p class="admin-upload-status" *ngIf="subiendoVisualAdminB">Subiendo imagen...</p>
+
+              <label class="admin-field">
+                <span>URL o ruta /assets</span>
+                <input
+                  type="text"
+                  [(ngModel)]="formularioEdicion.visualOpcionBSrc"
+                  name="visualOpcionBSrc"
+                  [disabled]="isSavingAdminAction"
+                  placeholder="/assets/visual-preguntas/opcion-b.jpg"
+                />
+              </label>
+
+              <label class="admin-field">
+                <span>Etiqueta</span>
+                <input
+                  type="text"
+                  [(ngModel)]="formularioEdicion.visualOpcionBLabel"
+                  name="visualOpcionBLabel"
+                  [disabled]="isSavingAdminAction"
+                  placeholder="Opcion B"
+                />
+              </label>
+
+              <label class="admin-field">
+                <span>Texto alternativo</span>
+                <input
+                  type="text"
+                  [(ngModel)]="formularioEdicion.visualOpcionBAlt"
+                  name="visualOpcionBAlt"
+                  [disabled]="isSavingAdminAction"
+                  placeholder="Describe la imagen"
+                />
+              </label>
+
+              <label class="admin-field admin-range-field">
+                <span>Posicion vertical: {{ formularioEdicion.visualOpcionBPositionY }}%</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  [(ngModel)]="formularioEdicion.visualOpcionBPositionY"
+                  name="visualOpcionBPositionY"
+                  [disabled]="isSavingAdminAction"
+                />
+              </label>
+            </article>
+          </div>
+        </div>
       </div>
 
       <div class="admin-grid">

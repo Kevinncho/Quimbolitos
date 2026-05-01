@@ -87,7 +87,12 @@
           <article class="visual-card">
             <h3>Opcion A</h3>
             <div class="preview" *ngIf="previewA || visual.opcionASrc">
-              <img [src]="previewA || visual.opcionASrc" alt="Vista previa opcion A" (error)="previewA = null" />
+              <img
+                [src]="previewA || visual.opcionASrc"
+                alt="Vista previa opcion A"
+                [style.object-position]="getObjectPosition(visual.opcionAPositionY)"
+                (error)="previewA = null"
+              />
             </div>
             <label class="upload">
               Imagen
@@ -106,12 +111,21 @@
               <span>Texto alternativo</span>
               <input type="text" name="opcionAAlt" [(ngModel)]="visual.opcionAAlt" placeholder="Describe la imagen" />
             </label>
+            <label class="range-field">
+              <span>Posicion vertical: {{ visual.opcionAPositionY }}%</span>
+              <input type="range" min="0" max="100" step="1" name="opcionAPositionY" [(ngModel)]="visual.opcionAPositionY" />
+            </label>
           </article>
 
           <article class="visual-card">
             <h3>Opcion B</h3>
             <div class="preview" *ngIf="previewB || visual.opcionBSrc">
-              <img [src]="previewB || visual.opcionBSrc" alt="Vista previa opcion B" (error)="previewB = null" />
+              <img
+                [src]="previewB || visual.opcionBSrc"
+                alt="Vista previa opcion B"
+                [style.object-position]="getObjectPosition(visual.opcionBPositionY)"
+                (error)="previewB = null"
+              />
             </div>
             <label class="upload">
               Imagen
@@ -129,6 +143,10 @@
             <label>
               <span>Texto alternativo</span>
               <input type="text" name="opcionBAlt" [(ngModel)]="visual.opcionBAlt" placeholder="Describe la imagen" />
+            </label>
+            <label class="range-field">
+              <span>Posicion vertical: {{ visual.opcionBPositionY }}%</span>
+              <input type="range" min="0" max="100" step="1" name="opcionBPositionY" [(ngModel)]="visual.opcionBPositionY" />
             </label>
           </article>
         </div>

@@ -46,6 +46,9 @@ public class VisualPregunta {
     @Column(length = 300)
     private String opcionAAlt;
 
+    @Column
+    private Integer opcionAPositionY;
+
     @Column(length = 200)
     private String opcionBLabel;
 
@@ -54,4 +57,7 @@ public class VisualPregunta {
 
     @Column(length = 300)
     private String opcionBAlt;
+
+    @Column
+    private Integer opcionBPositionY;
 }

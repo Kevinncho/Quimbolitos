@@ -14,7 +14,9 @@ import com.example.quimbolitos.quimbolito.dto.pregunta.UpdatePreguntaRequest;
 import com.example.quimbolitos.quimbolito.entity.Pregunta;
 import com.example.quimbolitos.quimbolito.entity.Subtema;
 import com.example.quimbolitos.quimbolito.repository.PreguntaRepository;
+import com.example.quimbolitos.quimbolito.repository.RespuestaRepository;
 import com.example.quimbolitos.quimbolito.repository.SubtemaRepository;
+import com.example.quimbolitos.quimbolito.repository.VisualPreguntaRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +26,8 @@ public class PreguntaService {
 
     private final PreguntaRepository preguntaRepository;
     private final SubtemaRepository subtemaRepository;
+    private final RespuestaRepository respuestaRepository;
+    private final VisualPreguntaRepository visualPreguntaRepository;
     private final AccessService accessService;
 
     @Transactional
@@ -79,6 +83,8 @@ public class PreguntaService {
     public void delete(Long id, Authentication authentication) {
         accessService.requireAdmin(authentication);
         Pregunta pregunta = getPreguntaById(id);
+        visualPreguntaRepository.deleteByPregunta_Id(pregunta.getId());
+        respuestaRepository.deleteAllByPregunta_Id(pregunta.getId());
         preguntaRepository.delete(pregunta);
     }
 
@@ -98,6 +104,8 @@ public class PreguntaService {
                 .enunciado(pregunta.getEnunciado())
                 .descripcion(pregunta.getDescripcion())
                 .activa(pregunta.getActiva())
+                .temaId(pregunta.getSubtema().getTema().getId())
+                .temaNombre(pregunta.getSubtema().getTema().getNombre())
                 .subtemaId(pregunta.getSubtema().getId())
                 .subtemaNombre(pregunta.getSubtema().getNombre())
                 .subtemaIcono(pregunta.getSubtema().getIcono())

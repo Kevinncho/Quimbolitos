@@ -27,6 +27,10 @@ export class UsuarioService {
     return this.apiService.put<UsuarioResponse>('/usuarios/me', payload);
   }
 
+  activarAdminBootstrap(): Observable<UsuarioResponse> {
+    return this.apiService.post<UsuarioResponse>('/usuarios/me/bootstrap-admin', {});
+  }
+
   uploadFotoPerfil(file: File): Observable<UsuarioResponse> {
     const formData = new FormData();
     formData.append('file', file);

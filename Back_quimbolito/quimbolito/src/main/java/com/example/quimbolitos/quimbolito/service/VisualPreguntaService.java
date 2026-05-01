@@ -44,9 +44,11 @@ public class VisualPreguntaService {
                 .opcionALabel(request.getOpcionALabel())
                 .opcionASrc(request.getOpcionASrc())
                 .opcionAAlt(request.getOpcionAAlt())
+                .opcionAPositionY(normalizePosition(request.getOpcionAPositionY()))
                 .opcionBLabel(request.getOpcionBLabel())
                 .opcionBSrc(request.getOpcionBSrc())
                 .opcionBAlt(request.getOpcionBAlt())
+                .opcionBPositionY(normalizePosition(request.getOpcionBPositionY()))
                 .build();
 
         return toResponse(visualPreguntaRepository.save(visual));
@@ -88,6 +90,9 @@ public class VisualPreguntaService {
         if (request.getOpcionAAlt() != null) {
             visual.setOpcionAAlt(request.getOpcionAAlt());
         }
+        if (request.getOpcionAPositionY() != null) {
+            visual.setOpcionAPositionY(normalizePosition(request.getOpcionAPositionY()));
+        }
         if (request.getOpcionBLabel() != null) {
             visual.setOpcionBLabel(request.getOpcionBLabel());
         }
@@ -96,6 +101,9 @@ public class VisualPreguntaService {
         }
         if (request.getOpcionBAlt() != null) {
             visual.setOpcionBAlt(request.getOpcionBAlt());
+        }
+        if (request.getOpcionBPositionY() != null) {
+            visual.setOpcionBPositionY(normalizePosition(request.getOpcionBPositionY()));
         }
 
         return toResponse(visualPreguntaRepository.save(visual));
@@ -138,9 +146,18 @@ public class VisualPreguntaService {
                 .opcionALabel(visual.getOpcionALabel())
                 .opcionASrc(visual.getOpcionASrc())
                 .opcionAAlt(visual.getOpcionAAlt())
+                .opcionAPositionY(normalizePosition(visual.getOpcionAPositionY()))
                 .opcionBLabel(visual.getOpcionBLabel())
                 .opcionBSrc(visual.getOpcionBSrc())
                 .opcionBAlt(visual.getOpcionBAlt())
+                .opcionBPositionY(normalizePosition(visual.getOpcionBPositionY()))
                 .build();
+    }
+
+    private Integer normalizePosition(Integer value) {
+        if (value == null) {
+            return 50;
+        }
+        return Math.max(0, Math.min(100, value));
     }
 }
