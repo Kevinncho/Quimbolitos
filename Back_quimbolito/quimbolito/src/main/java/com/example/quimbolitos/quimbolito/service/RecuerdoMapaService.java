@@ -87,8 +87,7 @@ public class RecuerdoMapaService {
 
         String fotoUrl = null;
         if (imagen != null && !imagen.isEmpty()) {
-            String storedName = fileStorageService.storeRecuerdoMapaPhoto(imagen);
-            fotoUrl = "/assets/" + storedName;
+            fotoUrl = fileStorageService.storeRecuerdoMapaPhoto(imagen);
         }
 
         Pais pais = null;
@@ -160,8 +159,7 @@ public class RecuerdoMapaService {
         }
 
         if (imagen != null && !imagen.isEmpty()) {
-            String storedName = fileStorageService.storeRecuerdoMapaPhoto(imagen);
-            recuerdoMapa.setFotoUrl("/assets/" + storedName);
+            recuerdoMapa.setFotoUrl(fileStorageService.storeRecuerdoMapaPhoto(imagen));
         }
 
         if (request.getPaisNombre() != null && !request.getPaisNombre().trim().isEmpty()) {

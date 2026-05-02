@@ -74,8 +74,7 @@ public class RecuerdoService {
 
         String fotoUrl = null;
         if (imagen != null && !imagen.isEmpty()) {
-            String storedName = fileStorageService.storeRecuerdoPhoto(imagen);
-            fotoUrl = "/assets/" + storedName;
+            fotoUrl = fileStorageService.storeRecuerdoPhoto(imagen);
         }
 
         Recuerdo recuerdo = Recuerdo.builder()
@@ -130,8 +129,7 @@ public class RecuerdoService {
         }
 
         if (imagen != null && !imagen.isEmpty()) {
-            String storedName = fileStorageService.storeRecuerdoPhoto(imagen);
-            recuerdo.setFotoUrl("/assets/" + storedName);
+            recuerdo.setFotoUrl(fileStorageService.storeRecuerdoPhoto(imagen));
         }
 
         return toResponse(recuerdoRepository.save(recuerdo));

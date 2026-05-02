@@ -79,8 +79,7 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario autenticado no encontrado"));
 
-        String storedName = fileStorageService.storeProfilePhoto(file);
-        usuario.setFotoPerfil("/assets/" + storedName);
+        usuario.setFotoPerfil(fileStorageService.storeProfilePhoto(file));
         return toUsuarioResponse(usuarioRepository.save(usuario));
     }
 

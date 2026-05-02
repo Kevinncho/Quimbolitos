@@ -112,8 +112,7 @@ public class VisualPreguntaService {
     @Transactional
     public String uploadVisualImage(Authentication authentication, org.springframework.web.multipart.MultipartFile imagen) {
         accessService.requireAdmin(authentication);
-        String storedName = fileStorageService.storeVisualPreguntaPhoto(imagen);
-        return "/assets/visual-preguntas/" + storedName;
+        return fileStorageService.storeVisualPreguntaPhoto(imagen);
     }
 
     @Transactional

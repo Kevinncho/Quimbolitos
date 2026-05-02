@@ -1,5 +1,6 @@
 package com.example.quimbolitos.quimbolito.service;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,24 +13,28 @@ import com.cloudinary.utils.ObjectUtils;
 @Service
 public class CloudinaryService {
 
-    @Value("${cloudinary.cloud-name}")
-    private String cloudName;
+    private final Cloudinary cloudinary;
 
-    @Value("${cloudinary.api-key}")
-    private String apiKey;
-
-    @Value("${cloudinary.api-secret}")
-    private String apiSecret;
-
-    public String uploadFile(MultipartFile file) throws Exception {
-        Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+    public CloudinaryService(@Value("${cloudinary.cloud-name}") String cloudName,
+                             @Value("${cloudinary.api-key}") String apiKey,
+                             @Value("${cloudinary.api-secret}") String apiSecret) {
+        this.cloudinary = new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", cloudName,
                 "api_key", apiKey,
                 "api_secret", apiSecret
         ));
+    }
 
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-
-        return uploadResult.get("url").toString();
+    public String uploadImage(MultipartFile file, String folder) {
+        try {
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "folder", folder,
+                    "resource_type", "image"
+            ));
+            Object secureUrl = uploadResult.get("secure_url");
+            return secureUrl != null ? secureUrl.toString() : uploadResult.get("url").toString();
+        } catch (IOException ex) {
+            throw new IllegalStateException("No se pudo subir la imagen a Cloudinary", ex);
+        }
     }
 }

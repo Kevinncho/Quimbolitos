@@ -85,14 +85,12 @@ public class CancionService {
 
         String fotoUrl = null;
         if (imagen != null && !imagen.isEmpty()) {
-            String storedName = fileStorageService.storeCancionPhoto(imagen);
-            fotoUrl = "/assets/" + storedName;
+            fotoUrl = fileStorageService.storeCancionPhoto(imagen);
         }
 
         String audioUrl = null;
         if (audio != null && !audio.isEmpty()) {
-            String storedAudio = fileStorageService.storeCancionAudio(audio);
-            audioUrl = "/assets/" + storedAudio;
+            audioUrl = fileStorageService.storeCancionAudio(audio);
         }
 
         Cancion cancion = Cancion.builder()
@@ -142,13 +140,11 @@ public class CancionService {
         }
 
         if (imagen != null && !imagen.isEmpty()) {
-            String storedName = fileStorageService.storeCancionPhoto(imagen);
-            cancion.setUrl("/assets/" + storedName);
+            cancion.setUrl(fileStorageService.storeCancionPhoto(imagen));
         }
 
         if (audio != null && !audio.isEmpty()) {
-            String storedAudio = fileStorageService.storeCancionAudio(audio);
-            cancion.setAudioUrl("/assets/" + storedAudio);
+            cancion.setAudioUrl(fileStorageService.storeCancionAudio(audio));
         }
 
         return toResponse(cancionRepository.save(cancion));
