@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AuthService, UsuarioResponse } from './auth.service';
 import { AhorcadoEstadoResponse, AhorcadoService } from './ahorcado.service';
+import { getAhorcadoWebSocketUrl } from '../config/api.config';
 
 @Injectable({
   providedIn: 'root'
@@ -40,9 +41,7 @@ export class JuegoNotificacionService {
       return;
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const host = window.location.hostname || 'localhost';
-    const url = `${protocol}://${host}:8080/ws/ahorcado?token=${encodeURIComponent(token)}`;
+    const url = getAhorcadoWebSocketUrl(token);
 
     try {
       this.ws = new WebSocket(url);

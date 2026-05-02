@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { AhorcadoEstadoResponse, AhorcadoHistorialItem, AhorcadoService } from '../../service/ahorcado.service';
 import { AuthService, UsuarioResponse } from '../../service/auth.service';
 import { ParejaResponse, ParejaService } from '../../service/pareja.service';
+import { getAhorcadoWebSocketUrl } from '../../config/api.config';
 
 @Component({
   selector: 'app-ahorcado',
@@ -353,9 +354,7 @@ export class AhorcadoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const host = window.location.hostname || 'localhost';
-    const url = `${protocol}://${host}:8080/ws/ahorcado?token=${encodeURIComponent(token)}`;
+    const url = getAhorcadoWebSocketUrl(token);
 
     try {
       this.ws = new WebSocket(url);
