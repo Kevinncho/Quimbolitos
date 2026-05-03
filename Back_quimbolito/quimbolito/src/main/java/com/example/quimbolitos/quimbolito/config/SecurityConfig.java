@@ -51,8 +51,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/usuarios/me").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/canciones").permitAll()
                         .anyRequest().authenticated())
-                .authenticationProvider(authenticationProvider());
-           //     .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
