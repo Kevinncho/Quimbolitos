@@ -28,34 +28,44 @@ public class SupabaseStorageService {
     }
 
     public String uploadAudio(MultipartFile file) {
-        try {
-            String originalName = StringUtils.cleanPath(file.getOriginalFilename() == null ? "audio" : file.getOriginalFilename());
-            String fileName = UUID.randomUUID() + "_" + sanitizeFileName(originalName);
-            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+    try {
+        String originalName = StringUtils.cleanPath(
+                file.getOriginalFilename() == null ? "audio" : file.getOriginalFilename()
+        );
 
-            HttpURLConnection conn = (HttpURLConnection) new URL(
-                    supabaseUrl + "/storage/v1/object/" + audioBucket + "/" + encodedFileName
-            ).openConnection();
+        String fileName = UUID.randomUUID() + "_" + sanitizeFileName(originalName);
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
 
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Bearer " + supabaseKey);
-            conn.setRequestProperty("apikey", supabaseKey);
-            conn.setRequestProperty("x-upsert", "false");
-            conn.setRequestProperty("Content-Type", resolveContentType(file));
+        URL url = new URL(supabaseUrl + "/storage/v1/object/" + audioBucket + "/" + encodedFileName);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-            conn.getOutputStream().write(file.getBytes());
+        conn.setDoOutput(true);
+        conn.setRequestMethod("POST");
 
-            int responseCode = conn.getResponseCode();
-            if (responseCode != HttpURLConnection.HTTP_OK && responseCode != HttpURLConnection.HTTP_CREATED) {
-                throw new IllegalStateException("Error subiendo a Supabase: " + responseCode);
-            }
+        conn.setRequestProperty("Authorization", "Bearer " + supabaseKey);
+        conn.setRequestProperty("apikey", supabaseKey);
+        conn.setRequestProperty("x-upsert", "true");
 
-            return supabaseUrl + "/storage/v1/object/public/" + audioBucket + "/" + encodedFileName;
-        } catch (IOException ex) {
-            throw new IllegalStateException("No se pudo subir el audio a Supabase", ex);
+        // 🔥 CLAVE
+        conn.setRequestProperty("Content-Type", "application/octet-stream");
+        conn.setFixedLengthStreamingMode(file.getSize());
+
+        try (var os = conn.getOutputStream()) {
+            os.write(file.getBytes());
         }
+
+        int responseCode = conn.getResponseCode();
+
+        if (responseCode != 200 && responseCode != 201) {
+            throw new IllegalStateException("Error subiendo a Supabase: " + responseCode);
+        }
+
+        return supabaseUrl + "/storage/v1/object/public/" + audioBucket + "/" + encodedFileName;
+
+    } catch (IOException ex) {
+        throw new IllegalStateException("No se pudo subir el audio a Supabase", ex);
     }
+}
 
     private String resolveContentType(MultipartFile file) {
         return file.getContentType() != null && !file.getContentType().isBlank()
