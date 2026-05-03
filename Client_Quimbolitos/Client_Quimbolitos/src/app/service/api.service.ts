@@ -41,19 +41,33 @@ export class ApiService {
     });
   }
 
-  post<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}${endpoint}`, data, {
-      headers: this.getHeaders(endpoint)
-    });
-  }
+post<T>(endpoint: string, data: any): Observable<T> {
+  const isFormData = data instanceof FormData;
 
-  postFormData<T>(endpoint: string, data: FormData): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}${endpoint}`, data, {
-      headers: this.getAuthHeaders()
-    });
-  }
+  return this.http.post<T>(`${this.baseUrl}${endpoint}`, data, {
+    headers: isFormData
+      ? new HttpHeaders({
+          ...(localStorage.getItem('token')
+            ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            : {})
+        })
+      : this.getHeaders(endpoint)
+  });
+}
+
+postFormData<T>(endpoint: string, data: FormData): Observable<T> {
+  const token = localStorage.getItem('token');
+
+  return this.http.post<T>(`${this.baseUrl}${endpoint}`, data, {
+    headers: new HttpHeaders({
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    })
+  });
+}
 
   putFormData<T>(endpoint: string, data: FormData): Observable<T> {
+    const token = localStorage.getItem('token');
+
     return this.http.put<T>(`${this.baseUrl}${endpoint}`, data, {
       headers: this.getAuthHeaders()
     });
