@@ -98,6 +98,7 @@ export class PreguntaTemaComponent implements OnInit {
         this.successMessage = isUpdating
           ? 'Respuesta actualizada correctamente.'
           : 'Respuesta enviada correctamente.';
+        this.avanzarTrasGuardarRespuesta();
       },
       error: (error) => {
         this.isSending = false;
@@ -531,6 +532,15 @@ export class PreguntaTemaComponent implements OnInit {
         console.warn('No se pudo cargar la lista del subtema para navegar entre preguntas.', error);
       }
     });
+  }
+
+  private avanzarTrasGuardarRespuesta(): void {
+    if (this.puedeIrSiguiente) {
+      this.irAPreguntaSiguiente();
+      return;
+    }
+
+    this.volverAPreguntas();
   }
 
   private aplicarRespuestaGuardada(respuestaGuardada: RespuestaResponse | null): void {
