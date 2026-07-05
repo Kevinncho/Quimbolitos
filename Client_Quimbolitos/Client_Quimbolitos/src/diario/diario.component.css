@@ -41,6 +41,26 @@
   color: rgba(200, 230, 255, 0.9);
 }
 
+.btn-pelis {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 200, 255, 0.6);
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-pelis img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
 .btn-mapa img {
   width: 20px;
   height: 20px;
@@ -53,6 +73,11 @@
   margin: 0 auto;
 }
 .btn-mapa:hover {
+  background: rgba(0, 200, 255, 0.4);
+  box-shadow: 0 0 15px rgba(0, 200, 255, 0.8);
+}
+
+.btn-pelis:hover {
   background: rgba(0, 200, 255, 0.4);
   box-shadow: 0 0 15px rgba(0, 200, 255, 0.8);
 }

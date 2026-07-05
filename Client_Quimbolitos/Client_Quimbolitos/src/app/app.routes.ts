@@ -22,6 +22,9 @@ import { MiPerfilComponent } from './mi-perfil/mi-perfil.component';
 import { EditarPerfilComponent } from './mi-perfil/editar-perfil.component';
 import { RegistroComponent } from './login/registro/registro.component';
 import { CrearPreguntaAdminComponent } from './crear-pregunta-admin/crear-pregunta-admin.component';
+import { PeliculasComponent } from '../diario/peliculas/peliculas.component';
+import { CrearPeliculaComponent } from '../diario/peliculas/crear-pelicula/crear-pelicula.component';
+import { DetallePeliculaComponent } from '../diario/peliculas/detalle-pelicula/detalle-pelicula.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -44,6 +47,9 @@ export const routes: Routes = [
   { path: 'diario/mapa/bitacora/:id', component: DetalleBitacoraComponent, canActivate: [AuthGuard] },
   { path: 'diario/recuerdo/:id', component: DetalleRecuerdoComponent, canActivate: [AuthGuard] },
   { path: 'diario/crear-recuerdo', component: CrearRecuerdoComponent, canActivate: [AuthGuard] },
+  { path: 'peliculas', component: PeliculasComponent, canActivate: [AuthGuard] },
+  { path: 'peliculas/crear', component: CrearPeliculaComponent, canActivate: [AuthGuard] },
+  { path: 'peliculas/:id', component: DetallePeliculaComponent, canActivate: [AuthGuard] },
   { path: 'playlist', component: PlaylistComponent, canActivate: [AuthGuard] },
   { path: 'playlist/crear-cancion', component: CrearCancionComponent, canActivate: [AuthGuard] }
 ];

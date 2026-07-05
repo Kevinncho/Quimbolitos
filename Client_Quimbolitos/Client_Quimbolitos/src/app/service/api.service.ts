@@ -84,7 +84,13 @@ postFormData<T>(endpoint: string, data: FormData): Observable<T> {
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
       return trimmed;
     }
+    if (trimmed.startsWith('assets/')) {
+      return `/${trimmed}`;
+    }
     if (trimmed.startsWith('/assets/')) {
+      return `${this.baseUrl.replace(/\/api$/, '')}${trimmed}`;
+    }
+    if (trimmed.startsWith('/')) {
       return `${this.baseUrl.replace(/\/api$/, '')}${trimmed}`;
     }
     return trimmed;

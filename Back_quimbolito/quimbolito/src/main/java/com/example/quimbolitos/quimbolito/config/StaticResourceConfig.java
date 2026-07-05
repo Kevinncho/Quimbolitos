@@ -14,6 +14,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
 
     private final Path fotoPerfilDir;
     private final Path recuerdosDir;
+    private final Path peliculasDir;
     private final Path recuerdosMapaDir;
     private final Path cancionesDir;
     private final Path cancionesAudioDir;
@@ -22,6 +23,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
     public StaticResourceConfig(
             @Value("${app.storage.foto-perfil-dir}") String fotoPerfilDir,
             @Value("${app.storage.recuerdos-dir}") String recuerdosDir,
+            @Value("${app.storage.peliculas-dir}") String peliculasDir,
             @Value("${app.storage.recuerdos-mapa-dir}") String recuerdosMapaDir,
             @Value("${app.storage.canciones-dir}") String cancionesDir,
             @Value("${app.storage.canciones-audio-dir}") String cancionesAudioDir,
@@ -29,6 +31,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
     ) {
         this.fotoPerfilDir = Path.of(fotoPerfilDir).toAbsolutePath().normalize();
         this.recuerdosDir = Path.of(recuerdosDir).toAbsolutePath().normalize();
+        this.peliculasDir = Path.of(peliculasDir).toAbsolutePath().normalize();
         this.recuerdosMapaDir = Path.of(recuerdosMapaDir).toAbsolutePath().normalize();
         this.cancionesDir = Path.of(cancionesDir).toAbsolutePath().normalize();
         this.cancionesAudioDir = Path.of(cancionesAudioDir).toAbsolutePath().normalize();
@@ -44,6 +47,10 @@ public class StaticResourceConfig implements WebMvcConfigurer {
         String recuerdosLocation = this.recuerdosDir.toUri().toString();
         if (!recuerdosLocation.endsWith("/")) {
             recuerdosLocation += "/";
+        }
+        String peliculasLocation = this.peliculasDir.toUri().toString();
+        if (!peliculasLocation.endsWith("/")) {
+            peliculasLocation += "/";
         }
         String cancionesLocation = this.cancionesDir.toUri().toString();
         if (!cancionesLocation.endsWith("/")) {
@@ -68,6 +75,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
                 .addResourceLocations(
                         location,
                         recuerdosLocation,
+                        peliculasLocation,
                         recuerdosMapaLocation,
                         cancionesLocation,
                         cancionesAudioLocation,

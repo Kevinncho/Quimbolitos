@@ -1,0 +1,176 @@
+<app-header></app-header>
+
+<section class="peliculas-page">
+  <div class="peliculas-hero">
+    <button class="btn-back" type="button" (click)="volverADiario()">Volver al diario</button>
+
+    <div class="hero-copy">
+      <p class="eyebrow">Noche de cine</p>
+      <h1>Peliculas para ver y recordar juntos</h1>
+      <p class="hero-text">
+        Guarden sus favoritas, compartan resenas y construyan su cartelera en pareja.
+      </p>
+    </div>
+
+    <a class="btn-create" [routerLink]="['/peliculas/crear']">Agregar pelicula</a>
+  </div>
+
+  <div class="filters-panel">
+    <div class="filter-group filter-search">
+      <span class="filter-label">Buscar</span>
+      <label class="search-shell">
+        <span class="search-icon">&#9906;</span>
+        <input
+          type="text"
+          [(ngModel)]="filtroBusqueda"
+          name="filtroBusqueda"
+          placeholder="Buscar por nombre..."
+        >
+      </label>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Estado</span>
+      <div class="filter-pills">
+        <button type="button" [class.active]="filtroEstado === 'todas'" (click)="filtroEstado = 'todas'">Todas</button>
+        <button type="button" [class.active]="filtroEstado === 'pendientes'" (click)="filtroEstado = 'pendientes'">Por ver</button>
+        <button type="button" [class.active]="filtroEstado === 'vistas'" (click)="filtroEstado = 'vistas'">Vistas</button>
+      </div>
+    </div>
+
+    <div class="filter-group filter-group-genres">
+      <app-custom-dropdown
+        label="Genero"
+        ariaLabel="Filtrar peliculas por genero"
+        placeholder="Todos"
+        [options]="opcionesGenero"
+        [value]="filtroGenero"
+        (valueChange)="filtroGenero = $event === 'todos' ? 'todos' : $any($event)"
+      ></app-custom-dropdown>
+    </div>
+  </div>
+
+  <div class="peliculas-grid">
+    <p *ngIf="cargando" class="feedback-card">Cargando peliculas...</p>
+    <p *ngIf="error" class="feedback-card error">{{ error }}</p>
+
+    <div *ngIf="!cargando && !error && peliculas.length === 0" class="feedback-card empty-card">
+      <p>Aun no han agregado peliculas a su lista.</p>
+      <a [routerLink]="['/peliculas/crear']">Crear la primera</a>
+    </div>
+
+    <div *ngIf="!cargando && !error && peliculas.length > 0 && peliculasFiltradas.length === 0" class="feedback-card empty-card">
+      <p>No hay peliculas que coincidan con ese filtro.</p>
+    </div>
+
+    <article
+      *ngFor="let pelicula of peliculasFiltradas"
+      class="pelicula-card"
+      (click)="verDetalle(pelicula.id)"
+    >
+      <div class="poster-wrap">
+        <img [src]="getImagenPelicula(pelicula)" [alt]="pelicula.titulo" (error)="onPosterError($event)">
+        <div class="rating-chip">
+          <div class="stars">
+            <span *ngFor="let star of getEstrellas(pelicula.ratingPromedio)" [class.filled]="star === 'filled'">&#9733;</span>
+          </div>
+          <strong>{{ pelicula.ratingPromedio | number:'1.1-1' }}</strong>
+        </div>
+      </div>
+
+      <div class="pelicula-body">
+        <div class="meta-line">
+          <span>Agregada por {{ pelicula.usuarioNombre }}</span>
+          <span>{{ pelicula.totalResenas }} resenas</span>
+        </div>
+
+        <div class="status-line">
+          <span class="status-badge" [class.seen]="pelicula.visto">
+            {{ pelicula.visto ? 'Vista' : 'Por ver' }}
+          </span>
+
+          <div class="genre-list" *ngIf="pelicula.generos.length > 0">
+            <span class="genre-pill" *ngFor="let genero of pelicula.generos">{{ getGeneroLabel(genero) }}</span>
+          </div>
+        </div>
+
+        <h2>{{ pelicula.titulo }}</h2>
+        <p>{{ pelicula.descripcion || 'Sinopsis pendiente por escribir.' }}</p>
+
+        <div class="card-footer">
+          <a class="watch-link" [href]="pelicula.linkVer" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()">
+            Ver pelicula
+          </a>
+
+          <div class="acciones-iconos" *ngIf="puedeEditar(pelicula)">
+            <button class="icono-btn" type="button" (click)="abrirEditar(pelicula, $event)">
+              <img src="assets/editar.svg" alt="Editar pelicula">
+            </button>
+            <button class="icono-btn" type="button" (click)="eliminarPelicula(pelicula, $event)">
+              <img src="assets/Eliminar.svg" alt="Eliminar pelicula">
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<div *ngIf="editandoPelicula" class="modal-overlay" (click)="cerrarEditar()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="cerrar" type="button" (click)="cerrarEditar()">&times;</button>
+
+    <h2>Editar pelicula</h2>
+    <p class="subtitulo">Actualiza la portada, descripcion, estado, generos o link.</p>
+
+    <form (ngSubmit)="guardarEdicion()">
+      <div class="imagen-preview" *ngIf="editPreview">
+        <img [src]="editPreview" alt="Vista previa de la pelicula">
+      </div>
+
+      <label class="upload">
+        Cambiar portada
+        <input type="file" (change)="onEditarImagenSeleccionada($event)" accept="image/*">
+      </label>
+
+      <input type="text" [(ngModel)]="editTitulo" name="editTitulo" placeholder="Titulo de la pelicula" required>
+      <textarea [(ngModel)]="editDescripcion" name="editDescripcion" rows="4" placeholder="Que tiene de especial esta pelicula"></textarea>
+      <input type="url" [(ngModel)]="editLinkVer" name="editLinkVer" placeholder="https://..." required>
+
+      <div class="estado-row">
+        <label class="switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="editVisto"
+            name="editVisto">
+          <span class="slider"></span>
+        </label>
+
+        <span class="estado-texto">
+          {{ editVisto ? 'Vista' : 'Por ver' }}
+        </span>
+      </div>
+
+      <div class="edit-section">
+        <span class="modal-label">Generos</span>
+        <div class="genre-editor">
+          <button
+            *ngFor="let genero of generosDisponibles"
+            type="button"
+            class="genre-pill-button"
+            [class.active]="editGeneros.includes(genero.value)"
+            (click)="toggleGeneroEdicion(genero.value)"
+          >
+            {{ genero.label }}
+          </button>
+        </div>
+      </div>
+
+      <p *ngIf="errorEdicion" class="error-feedback">{{ errorEdicion }}</p>
+
+      <button type="submit" [disabled]="guardandoEdicion">
+        {{ guardandoEdicion ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+    </form>
+  </div>
+</div>

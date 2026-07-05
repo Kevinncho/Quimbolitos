@@ -67,6 +67,10 @@ export class DiarioComponent implements OnInit {
     this.router.navigate(['/playlist']);
   }
 
+  goToPeliculas() {
+    this.router.navigate(['/peliculas']);
+  }
+
   verDetalle(id: number) {
     this.router.navigate(
       ['/diario/recuerdo', id],

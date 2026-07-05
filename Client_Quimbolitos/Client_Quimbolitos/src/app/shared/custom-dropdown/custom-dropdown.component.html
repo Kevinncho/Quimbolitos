@@ -1,0 +1,32 @@
+<div class="dropdown-shell" [class.open]="abierto">
+  <span *ngIf="label" class="dropdown-label">{{ label }}</span>
+
+  <button
+    type="button"
+    class="dropdown-trigger"
+    [attr.aria-label]="ariaLabel"
+    [attr.aria-expanded]="abierto"
+    aria-haspopup="listbox"
+    (click)="toggleDropdown()"
+    (keydown)="onButtonKeydown($event)"
+  >
+    <span class="trigger-text">{{ selectedLabel }}</span>
+    <span class="trigger-icon" aria-hidden="true">&#9662;</span>
+  </button>
+
+  <div class="dropdown-menu" [class.visible]="abierto">
+    <button
+      *ngFor="let option of options"
+      type="button"
+      class="dropdown-option"
+      role="option"
+      [attr.aria-selected]="value === option.value"
+      [class.selected]="value === option.value"
+      (click)="seleccionar(option.value)"
+      (keydown)="onOptionKeydown($event, option.value)"
+    >
+      <span>{{ option.label }}</span>
+      <span class="option-check" [class.visible]="value === option.value" aria-hidden="true">&#10003;</span>
+    </button>
+  </div>
+</div>

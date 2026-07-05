@@ -4,12 +4,16 @@
     <h1 class="titulo_diario">Cronicas del Reino</h1>
 
     <div class="acciones-header">
-      <button class="btn-music" (click)="goToPlaylist()">
+     <!-- <button class="btn-music" (click)="goToPlaylist()">
         <img src="assets/music.png" alt="Musica">
-      </button>
+      </button>-->
 
       <button class="btn-mapa" (click)="irAMapa()">
         <img src="assets/map.png" alt="Mapa">
+      </button>
+
+      <button class="btn-pelis" type="button" (click)="goToPeliculas()">
+        <img src="assets/movie.png" alt="Películas">
       </button>
 
       <button class="btn-add" [routerLink]="['/diario/crear-recuerdo']">+</button>

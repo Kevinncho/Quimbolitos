@@ -1,0 +1,58 @@
+<section class="crear-pelicula-page">
+  <div class="form-shell">
+    <button class="back-link" type="button" (click)="volver()">Volver</button>
+
+    <div class="heading">
+      <p class="eyebrow">Nueva recomendacion</p>
+      <h1>Agregar pelicula a su lista</h1>
+      <p>Guarden una portada bonita, una descripcion corta y el link para verla cuando quieran.</p>
+    </div>
+
+    <form (ngSubmit)="guardarPelicula()">
+      <div class="preview" *ngIf="preview">
+        <img [src]="preview" alt="Vista previa de la portada">
+      </div>
+
+      <label class="upload">
+        Subir portada
+        <input type="file" (change)="onImagenSeleccionada($event)" accept="image/*">
+      </label>
+
+      <input type="text" [(ngModel)]="titulo" name="titulo" placeholder="Titulo de la pelicula" required>
+      <textarea [(ngModel)]="descripcion" name="descripcion" rows="5" placeholder="Que les gustaria contar sobre esta pelicula"></textarea>
+      <input type="url" [(ngModel)]="linkVer" name="linkVer" placeholder="https://..." required>
+
+      <div class="estado-box">
+        <span class="field-label">Estado</span>
+        <div class="estado-row">
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="visto" name="visto">
+            <span class="slider"></span>
+          </label>
+          <span class="estado-texto">{{ visto ? 'Vista' : 'Por ver' }}</span>
+        </div>
+      </div>
+
+      <div class="generos-box">
+        <span class="field-label">Generos</span>
+        <div class="chips-grid">
+          <button
+            *ngFor="let genero of generosDisponibles"
+            type="button"
+            class="genre-chip"
+            [class.active]="generosSeleccionados.includes(genero.value)"
+            (click)="toggleGenero(genero.value)"
+          >
+            {{ genero.label }}
+          </button>
+        </div>
+      </div>
+
+      <p *ngIf="error" class="error">{{ error }}</p>
+
+      <button type="submit" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar pelicula' }}
+      </button>
+    </form>
+  </div>
+</section>

@@ -1,0 +1,112 @@
+<section class="detalle-page" *ngIf="!cargando && pelicula; else loadingState">
+  <button class="back-link" type="button" (click)="volver()">Volver a peliculas</button>
+
+  <div class="detalle-shell">
+    <div class="poster-panel">
+      <img [src]="getPortada()" [alt]="pelicula.titulo" (error)="onPosterError($event)">
+    </div>
+
+    <div class="info-panel">
+      <p class="eyebrow">Cartelera de la pareja</p>
+      <h1>{{ pelicula.titulo }}</h1>
+      <div class="detail-tags">
+        <span class="status-badge" [class.seen]="pelicula.visto">
+          {{ pelicula.visto ? 'Vista' : 'Por ver' }}
+        </span>
+        <span class="genre-pill" *ngFor="let genero of pelicula.generos">{{ getGeneroLabel(genero) }}</span>
+      </div>
+      <p class="desc">{{ pelicula.descripcion || 'Todavia no hay descripcion para esta pelicula.' }}</p>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="label">Rating promedio</span>
+          <strong>{{ pelicula.ratingPromedio | number:'1.1-1' }}</strong>
+        </div>
+        <div class="stat-card">
+          <span class="label">Reseñas</span>
+          <strong>{{ pelicula.totalResenas }}</strong>
+        </div>
+      </div>
+
+      <a class="watch-link" [href]="pelicula.linkVer" target="_blank" rel="noopener noreferrer">Ir a ver la pelicula</a>
+    </div>
+  </div>
+
+  <div class="reviews-layout">
+    <section class="review-form">
+      <p class="section-label">Tu reseña</p>
+      <h2>Ponle estrellas y deja tu comentario</h2>
+
+      <div class="star-picker">
+        <button
+          *ngFor="let star of starArray()"
+          type="button"
+          [class.active]="star <= rating"
+          (click)="setRating(star)"
+        >
+          ★
+        </button>
+      </div>
+
+      <textarea
+        [(ngModel)]="comentario"
+        rows="6"
+        placeholder="Que te hizo sentir, que escena recuerdas o por que la recomendarias..."
+      ></textarea>
+
+      <p *ngIf="errorResena" class="error-text">{{ errorResena }}</p>
+
+      <button class="save-btn" type="button" (click)="guardarResena()" [disabled]="guardandoResena">
+        {{ guardandoResena ? 'Guardando...' : 'Guardar mi reseña' }}
+      </button>
+    </section>
+
+    <section class="review-list">
+      <p class="section-label">Reseñas de ustedes</p>
+      <h2>Lo que cada uno piensa</h2>
+
+      <article class="review-card current" *ngIf="miResena as resena">
+        <div class="review-head">
+          <div class="user">
+            <img [src]="getAvatar(resena.usuarioFotoPerfil)" [alt]="resena.usuarioNombre" (error)="onAvatarError($event)">
+            <div>
+              <strong>{{ resena.usuarioNombre }}</strong>
+              <span>Tu reseña</span>
+            </div>
+          </div>
+          <div class="inline-stars">
+            <span *ngFor="let star of starArray()" [class.active]="star <= resena.rating">★</span>
+          </div>
+        </div>
+        <p>{{ resena.comentario || 'Dejaste estrellas, pero aun no escribes comentario.' }}</p>
+      </article>
+
+      <article class="review-card" *ngFor="let resena of resenasOtras">
+        <div class="review-head">
+          <div class="user">
+            <img [src]="getAvatar(resena.usuarioFotoPerfil)" [alt]="resena.usuarioNombre" (error)="onAvatarError($event)">
+            <div>
+              <strong>{{ resena.usuarioNombre }}</strong>
+              <span>Pareja</span>
+            </div>
+          </div>
+          <div class="inline-stars">
+            <span *ngFor="let star of starArray()" [class.active]="star <= resena.rating">★</span>
+          </div>
+        </div>
+        <p>{{ resena.comentario || 'Todavia no dejo comentario escrito.' }}</p>
+      </article>
+
+      <div class="empty-review" *ngIf="resenasOtras.length === 0">
+        Tu pareja aun no ha dejado su reseña para esta pelicula.
+      </div>
+    </section>
+  </div>
+</section>
+
+<ng-template #loadingState>
+  <section class="loading-state">
+    <p *ngIf="cargando">Cargando pelicula...</p>
+    <p *ngIf="!cargando && error">{{ error }}</p>
+  </section>
+</ng-template>
