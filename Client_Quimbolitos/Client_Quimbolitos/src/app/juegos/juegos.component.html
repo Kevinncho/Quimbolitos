@@ -1,9 +1,19 @@
-﻿<app-header></app-header>
+<app-header></app-header>
 
-<div class="ahorcado-container">
+<section class="juegos-page">
+  <div class="juegos-backdrop"></div>
 
-  <div class="inicio">
-    <div class="panel-inicio">
+  <div class="juegos-shell">
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <p class="eyebrow">Sala de juegos</p>
+        <h1>Elijan una aventura para jugar juntos</h1>
+        <p class="hero-text">
+          Aquí viven sus partidas: las que se juegan con secretos, las que se resuelven por turnos
+          y las que sirven para reírse un rato dentro de la aplicación.
+        </p>
+      </div>
+
       <section class="perfiles">
         <div
           class="perfil perfil-uno"
@@ -19,41 +29,91 @@
           aria-label="Perfil de mi pareja"
         ></div>
       </section>
+    </section>
 
-      <h2>Juego en pareja</h2>
-
-      <ng-container *ngIf="!partidaActiva">
-        <label>Ingresa una palabra</label>
-        <input #inputPalabra type="text" />
-
-        <label>Ingresa una pista (opcional)</label>
-        <input
-          #inputPista
-          type="text"
-          placeholder="Ej: animal, película, lugar..."
-        />
-
-        <p class="error-juego" *ngIf="errorJuego">{{ errorJuego }}</p>
-
-        <button (click)="iniciarJuego(inputPalabra.value, inputPista.value)" [disabled]="iniciandoJuego">
-          {{ iniciandoJuego ? 'Iniciando...' : 'Comenzar Juego' }}
-        </button>
-      </ng-container>
-
-      <ng-container *ngIf="partidaActiva">
-        <p class="estado-juego">
-          {{ soyCreador ? 'Ya creaste la palabra. Espera a tu pareja.' : 'Tu pareja ya creo la palabra. Te toca adivinar.' }}
-        </p>
-        <p class="aviso-juego" *ngIf="!soyCreador">
-          Tu pareja inició la partida. Presiona para empezar a jugar.
-        </p>
-        <div class="acciones-activa">
-          <button (click)="irAJuegoActivo()">Jugar partida</button>
-          <button class="btn secundario" (click)="cancelarPartida()">Cancelar partida</button>
+    <section class="games-grid">
+      <article class="game-card featured">
+        <div class="card-head">
+          <span class="game-kicker">Cooperativo</span>
+          <span class="game-badge" *ngIf="partidaActiva">Partida activa</span>
         </div>
-      </ng-container>
 
-    </div>
+        <h2>Ahorcado</h2>
+        <p class="game-description">
+          Uno crea la palabra y el otro intenta salvar la partida. Ideal para seguir con la historia
+          y las pistas de ustedes.
+        </p>
+
+        <ng-container *ngIf="!partidaActiva; else partidaAhorcadoActiva">
+          <div class="field-group">
+            <label for="palabraAhorcado">Palabra secreta</label>
+            <input
+              id="palabraAhorcado"
+              type="text"
+              [(ngModel)]="palabraAhorcado"
+              placeholder="Escribe una palabra"
+            />
+          </div>
+
+          <div class="field-group">
+            <label for="pistaAhorcado">Pista opcional</label>
+            <input
+              id="pistaAhorcado"
+              type="text"
+              [(ngModel)]="pistaAhorcado"
+              placeholder="Ej: pelicula, lugar, recuerdo..."
+            />
+          </div>
+
+          <p class="helper-text">Tu pareja verá la pista, pero no la palabra.</p>
+          <p class="error-juego" *ngIf="errorJuego">{{ errorJuego }}</p>
+
+          <div class="card-actions">
+            <button type="button" class="btn principal" (click)="iniciarJuego()" [disabled]="iniciandoJuego">
+              {{ iniciandoJuego ? 'Iniciando...' : 'Crear partida' }}
+            </button>
+          </div>
+        </ng-container>
+
+        <ng-template #partidaAhorcadoActiva>
+          <div class="status-card">
+            <p class="estado-juego">
+              {{ soyCreador ? 'Ya preparaste la palabra. Espera a tu pareja.' : 'Tu pareja ya dejó la palabra lista.' }}
+            </p>
+            <p class="aviso-juego" *ngIf="!soyCreador">
+              Entra a la partida cuando quieras para empezar a adivinar.
+            </p>
+          </div>
+
+          <div class="card-actions">
+            <button type="button" class="btn principal" (click)="irAJuegoActivo()">Abrir ahorcado</button>
+            <button type="button" class="btn secundario" (click)="cancelarPartida()">Cancelar</button>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="game-card">
+        <div class="card-head">
+          <span class="game-kicker">En pareja</span>
+          <span class="game-badge neutral">Nuevo</span>
+        </div>
+
+        <h2>Tres en raya</h2>
+        <p class="game-description">
+          Un duelo corto con tablero compartido. Cada uno entra con su cuenta y la partida se
+          actualiza por turnos, igual que en ahorcado.
+        </p>
+
+        <ul class="game-points">
+          <li>Tablero 3x3 sincronizado</li>
+          <li>Turnos alternos entre X y O</li>
+          <li>Marcador compartido por ronda</li>
+        </ul>
+
+        <div class="card-actions">
+          <button type="button" class="btn principal" (click)="irATresEnRaya()">Abrir tablero</button>
+        </div>
+      </article>
+    </section>
   </div>
-
-</div>
+</section>

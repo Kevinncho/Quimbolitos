@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../header/header.component';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService, UsuarioResponse } from '../service/auth.service';
 import { ParejaResponse, ParejaService } from '../service/pareja.service';
@@ -11,7 +12,7 @@ import { getAhorcadoWebSocketUrl } from '../config/api.config';
 @Component({
   selector: 'app-juegos',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, RouterLink],
   templateUrl: './juegos.component.html',
   styleUrl: './juegos.component.css'
 })
@@ -27,6 +28,8 @@ export class JuegosComponent implements OnInit, OnDestroy {
   errorJuego = '';
   partidaActiva = false;
   soyCreador = false;
+  palabraAhorcado = '';
+  pistaAhorcado = '';
 
   constructor(
     private router: Router,
@@ -83,8 +86,8 @@ export class JuegosComponent implements OnInit, OnDestroy {
     this.router.navigate(['/mi-perfil']);
   }
 
-  iniciarJuego(palabra: string, pista: string) {
-    if (!palabra.trim() || this.iniciandoJuego) {
+  iniciarJuego() {
+    if (!this.palabraAhorcado.trim() || this.iniciandoJuego) {
       return;
     }
 
@@ -92,13 +95,15 @@ export class JuegosComponent implements OnInit, OnDestroy {
     this.errorJuego = '';
 
     this.ahorcadoService.iniciar({
-      palabra: palabra.trim(),
-      pista: pista?.trim() || ''
+      palabra: this.palabraAhorcado.trim(),
+      pista: this.pistaAhorcado?.trim() || ''
     }).subscribe({
       next: () => {
         this.iniciandoJuego = false;
         this.partidaActiva = true;
         this.soyCreador = true;
+        this.palabraAhorcado = '';
+        this.pistaAhorcado = '';
         this.router.navigate(['/ahorcado']);
       },
       error: (error) => {
@@ -110,6 +115,10 @@ export class JuegosComponent implements OnInit, OnDestroy {
 
   irAJuegoActivo(): void {
     this.router.navigate(['/ahorcado']);
+  }
+
+  irATresEnRaya(): void {
+    this.router.navigate(['/tres-en-raya']);
   }
 
   private cargarParejaActiva(): void {

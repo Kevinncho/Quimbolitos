@@ -24,3 +24,9 @@ export function getAhorcadoWebSocketUrl(token: string): string {
   const protocol = apiOrigin.protocol === 'https:' ? 'wss:' : 'ws:';
   return `${protocol}//${apiOrigin.host}/ws/ahorcado?token=${encodeURIComponent(token)}`;
 }
+
+export function getTresEnRayaWebSocketUrl(token: string): string {
+  const apiOrigin = new URL(getApiOrigin());
+  const protocol = apiOrigin.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${apiOrigin.host}/ws/tres-en-raya?token=${encodeURIComponent(token)}`;
+}

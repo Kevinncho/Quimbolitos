@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { clearStoredToken, clearStoredUser, getStoredToken, getStoredUser, setStoredToken, setStoredUser } from './auth-storage';
 
 export interface LoginRequest {
   email: string;
@@ -55,22 +56,22 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearStoredToken();
+    clearStoredUser();
     this.userSubject.next(null);
   }
 
   saveToken(token: string): void {
-    localStorage.setItem('token', token);
+    setStoredToken(token);
   }
 
   saveUser(user: UsuarioResponse): void {
-    localStorage.setItem('user', JSON.stringify(user));
+    setStoredUser(JSON.stringify(user));
     this.userSubject.next(user);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return getStoredToken();
   }
 
   getUser(): UsuarioResponse | null {
@@ -96,7 +97,7 @@ export class AuthService {
   }
 
   private getUserFromStorage(): UsuarioResponse | null {
-    const user = localStorage.getItem('user');
+    const user = getStoredUser();
     return user ? JSON.parse(user) : null;
   }
 }

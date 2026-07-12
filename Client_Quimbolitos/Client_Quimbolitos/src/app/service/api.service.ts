@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { getApiBaseUrl } from '../config/api.config';
+import { getStoredToken } from './auth-storage';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   private getHeaders(endpoint?: string): HttpHeaders {
-    const token = localStorage.getItem('token');
+    const token = getStoredToken();
 
     if (endpoint?.includes('/auth')) {
       return new HttpHeaders({
@@ -27,7 +28,7 @@ export class ApiService {
   }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
+    const token = getStoredToken();
     return new HttpHeaders({
       ...(token ? { 'Authorization': `Bearer ${token}` } : {})
     });
@@ -43,12 +44,13 @@ export class ApiService {
 
 post<T>(endpoint: string, data: any): Observable<T> {
   const isFormData = data instanceof FormData;
+  const token = getStoredToken();
 
   return this.http.post<T>(`${this.baseUrl}${endpoint}`, data, {
     headers: isFormData
       ? new HttpHeaders({
-          ...(localStorage.getItem('token')
-            ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          ...(token
+            ? { Authorization: `Bearer ${token}` }
             : {})
         })
       : this.getHeaders(endpoint)
@@ -56,7 +58,7 @@ post<T>(endpoint: string, data: any): Observable<T> {
 }
 
 postFormData<T>(endpoint: string, data: FormData): Observable<T> {
-  const token = localStorage.getItem('token');
+  const token = getStoredToken();
 
   return this.http.post<T>(`${this.baseUrl}${endpoint}`, data, {
     headers: new HttpHeaders({
@@ -66,7 +68,7 @@ postFormData<T>(endpoint: string, data: FormData): Observable<T> {
 }
 
   putFormData<T>(endpoint: string, data: FormData): Observable<T> {
-    const token = localStorage.getItem('token');
+    const token = getStoredToken();
 
     return this.http.put<T>(`${this.baseUrl}${endpoint}`, data, {
       headers: this.getAuthHeaders()

@@ -1,4 +1,4 @@
-import { Routes, withRouterConfig } from '@angular/router';
+import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login/login.component';
 import { InicioComponent } from './inicio/inicio.component';
 import { PreguntasComponent } from './preguntas/preguntas.component';
@@ -6,6 +6,7 @@ import { HeaderComponent } from './header/header.component';
 import { PreguntaTemaComponent } from './pregunta-tema/pregunta-tema.component';
 import { JuegosComponent } from './juegos/juegos.component';
 import { AhorcadoComponent } from './juegos/ahorcado/ahorcado.component';
+import { TresEnRayaComponent } from './juegos/tres-en-raya/tres-en-raya.component';
 import { DiarioComponent } from '../diario/diario.component';
 import { MapaComponent } from '../diario/mapa/mapa.component';
 import { DetalleRecuerdoComponent } from '../diario/recuerdos/detalle-recuerdo/detalle-recuerdo.component';
@@ -37,6 +38,7 @@ export const routes: Routes = [
   { path: 'pregunta_tema/:id', component: PreguntaTemaComponent, canActivate: [AuthGuard] },
   { path: 'admin/crear-pregunta', component: CrearPreguntaAdminComponent, canActivate: [AuthGuard, AdminGuard] },
   { path: 'juegos', component: JuegosComponent, canActivate: [AuthGuard] },
+  { path: 'tres-en-raya', component: TresEnRayaComponent, canActivate: [AuthGuard] },
   { path: 'mi-perfil', component: MiPerfilComponent, canActivate: [AuthGuard] },
   { path: 'mi-perfil/editar', component: EditarPerfilComponent, canActivate: [AuthGuard] },
   { path: 'ahorcado', component: AhorcadoComponent, canActivate: [AuthGuard] },

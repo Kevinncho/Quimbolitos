@@ -7,6 +7,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 import com.example.quimbolitos.quimbolito.websocket.AhorcadoWebSocketHandler;
 import com.example.quimbolitos.quimbolito.websocket.AhorcadoWebSocketHandshakeInterceptor;
+import com.example.quimbolitos.quimbolito.websocket.TresEnRayaWebSocketHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,11 +17,16 @@ import lombok.RequiredArgsConstructor;
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final AhorcadoWebSocketHandler ahorcadoWebSocketHandler;
+    private final TresEnRayaWebSocketHandler tresEnRayaWebSocketHandler;
     private final AhorcadoWebSocketHandshakeInterceptor handshakeInterceptor;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(ahorcadoWebSocketHandler, "/ws/ahorcado")
+                .addInterceptors(handshakeInterceptor)
+                .setAllowedOrigins("*");
+
+        registry.addHandler(tresEnRayaWebSocketHandler, "/ws/tres-en-raya")
                 .addInterceptors(handshakeInterceptor)
                 .setAllowedOrigins("*");
     }

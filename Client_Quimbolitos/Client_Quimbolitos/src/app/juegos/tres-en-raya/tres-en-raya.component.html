@@ -1,0 +1,110 @@
+<app-header></app-header>
+
+<section class="tres-page">
+  <div class="pixel-grid"></div>
+
+  <div class="tres-shell">
+    <aside class="info-panel">
+      <section class="perfiles-juego">
+        <div class="perfil-wrap">
+          <div class="perfil perfil-uno" [style.background-image]="fondoPerfilUsuario" (click)="irAMiPerfil()"></div>
+          <span class="nombre-perfil">{{ nombreUsuario }} - {{ miSimbolo || '?' }}</span>
+        </div>
+        <div class="perfil-wrap">
+          <div class="perfil perfil-dos" [style.background-image]="fondoPerfilPareja"></div>
+          <span class="nombre-perfil">{{ nombrePareja }} - {{ simboloPareja || '?' }}</span>
+        </div>
+      </section>
+
+      <p class="eyebrow">Duelo en pareja</p>
+      <h1>Tres en raya</h1>
+
+      <div class="status-box" [class.winner]="!!estado?.ganador" [class.draw]="estado?.estado === 'EMPATE'">
+        <span class="status-label">Estado</span>
+        <strong>{{ statusText }}</strong>
+        <p>{{ statusDetail }}</p>
+      </div>
+
+      <div class="scoreboard">
+        <div class="score-card">
+          <span>Jugador X</span>
+          <strong>{{ estado?.marcadorX ?? 0 }}</strong>
+        </div>
+        <div class="score-card">
+          <span>Jugador O</span>
+          <strong>{{ estado?.marcadorO ?? 0 }}</strong>
+        </div>
+        <div class="score-card">
+          <span>Empates</span>
+          <strong>{{ estado?.empates ?? 0 }}</strong>
+        </div>
+      </div>
+
+      <p class="rounds">Rondas jugadas: {{ estado?.rondasJugadas ?? 0 }}</p>
+      <p class="error-text" *ngIf="errorEstado">{{ errorEstado }}</p>
+
+      <div class="actions" *ngIf="sinParejaActiva">
+        <button type="button" class="btn ghost" (click)="volverAJuegos()">Volver a juegos</button>
+      </div>
+
+      <div class="actions" *ngIf="!sinParejaActiva && sinPartida; else accionesPartida">
+        <button type="button" class="btn primary" (click)="crearPartida()" [disabled]="!puedeCrearPartida">
+          {{ creandoPartida ? 'Creando...' : 'Crear partida' }}
+        </button>
+        <button type="button" class="btn ghost" (click)="volverAJuegos()">Volver a juegos</button>
+      </div>
+
+      <ng-template #accionesPartida>
+        <div class="actions" *ngIf="!sinParejaActiva && !sinPartida">
+          <button type="button" class="btn primary" (click)="nuevaRonda()" [disabled]="!estado?.terminado || accionEnCurso">
+            Nueva ronda
+          </button>
+          <button type="button" class="btn secondary" (click)="reiniciarSerie()" [disabled]="!estado || accionEnCurso">
+            Reiniciar marcador
+          </button>
+          <button type="button" class="btn secondary" (click)="cancelarPartida()" [disabled]="!estado || accionEnCurso">
+            Cancelar partida
+          </button>
+          <button type="button" class="btn ghost" (click)="volverAJuegos()">Volver a juegos</button>
+        </div>
+      </ng-template>
+    </aside>
+
+    <section class="board-panel">
+      <div class="turn-banner" *ngIf="estado && !sinPartida">
+        <span [class.active]="esMiTurno">Turno de {{ nombreTurno }}</span>
+        <strong>{{ estado.simboloTurno }}</strong>
+      </div>
+
+      <div class="board-frame" [class.board-disabled]="sinPartida">
+        <div class="board">
+          <button
+            *ngFor="let index of boardIndices"
+            type="button"
+            class="cell"
+            [class.cell-x]="tablero[index] === 'X'"
+            [class.cell-o]="tablero[index] === 'O'"
+            [class.winning]="isWinningCell(index)"
+            [disabled]="!!tablero[index] || !puedeJugar"
+            (click)="play(index)"
+          >
+            {{ tablero[index] || '' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="board-caption" *ngIf="estado && !sinPartida">
+        <span class="chip" [class.active]="esMiTurno">Tu simbolo: {{ miSimbolo || '-' }}</span>
+        <span class="chip">{{ esMiTurno ? 'Te toca jugar' : 'Esperando movimiento' }}</span>
+      </div>
+
+      <div class="empty-state" *ngIf="sinParejaActiva && !cargandoEstado">
+        Necesitas una pareja activa para abrir el tablero multijugador.
+      </div>
+
+      <div class="empty-state" *ngIf="!sinParejaActiva && sinPartida && !cargandoEstado">
+        Crea la partida para que tu pareja pueda entrar y comenzar el duelo.
+      </div>
+    </section>
+  </div>
+</section>
