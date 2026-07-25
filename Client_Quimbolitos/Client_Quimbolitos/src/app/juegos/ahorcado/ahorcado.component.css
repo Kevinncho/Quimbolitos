@@ -2,7 +2,7 @@
 .juego-layout {
   position: relative;
 
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
 
   background-image: url('/assets/ahorcadoQui.png');
@@ -18,6 +18,7 @@ background-position: center -220px;
   padding-top: 140px; /* espacio header */
   box-sizing: border-box;
   background-color:rgba(0, 0, 0, 0.6);
+  overflow-x: hidden;
 }
 
 .perfiles-juego {
@@ -647,4 +648,120 @@ background:
 
 .estado-aviso p {
   margin: 0 0 12px;
+}
+
+@media (max-width: 640px) {
+  .juego-layout {
+    background-position: center -140px;
+    background-size: cover;
+    padding-top: 112px;
+  }
+
+  .perfiles-juego {
+    display: none;
+  }
+
+  .zona-juego {
+    width: min(100%, 94vw);
+    min-height: calc(100vh - 170px);
+    overflow-x: clip;
+  }
+
+  .ahorcado-escena {
+    width: 240px;
+    height: 168px;
+    bottom: -172px;
+    transform-origin: 50% 8%;
+    animation: balanceo-mobile 6s ease-in-out infinite;
+  }
+
+  .ahorcado-escena.turno-activo,
+  .ahorcado-escena.turno-espera {
+    margin-top: -8px;
+  }
+
+  .cabeza {
+    width: 560px;
+    height: 542px;
+    top: -178px;
+    left: 41%;
+  }
+
+  .torso {
+    width: 548px;
+    height: 580px;
+    top: -177px;
+    left: 41%;
+  }
+
+  .brazo.izq {
+    width: 520px;
+    height: 492px;
+    top: -182px;
+    left: -165px;
+  }
+
+  .brazo.der {
+    width: 525px;
+    height: 560px;
+    top: -184px;
+    right: -118px;
+  }
+
+  .piernas {
+    width: 514px;
+    height: 530px;
+    top: -170px;
+    left: 60%;
+  }
+
+  .pierna.izq {
+    width: 520px;
+    height: 496px;
+    top: -174px;
+    left: -90%;
+  }
+
+  .palabra {
+    gap: 12px;
+  }
+
+  .palabra.turno-activo,
+  .palabra.turno-espera {
+    margin-top: 4px;
+    margin-bottom: 10px;
+  }
+
+  .palabra span {
+    min-width: 28px;
+    font-size: 1.1rem;
+  }
+
+  .panel-teclado {
+    width: min(100%, 92vw);
+  }
+
+  .mensaje-central {
+    padding: 12px 18px;
+  }
+
+  .teclado.teclado-compacto {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+    max-width: 100%;
+  }
+
+  .teclado button {
+    height: 40px;
+  }
+
+  .acciones-finales {
+    gap: 12px;
+  }
+}
+
+@keyframes balanceo-mobile {
+  0%   { transform: rotate(-0.35deg); }
+  50%  { transform: rotate(0.35deg); }
+  100% { transform: rotate(-0.35deg); }
 }

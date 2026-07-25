@@ -4,6 +4,7 @@
   justify-content: center;
   align-items: center;
   padding: 24px;
+  box-sizing: border-box;
 }
 
 .registro-container > div {
@@ -206,10 +207,12 @@
   .registro-container {
     flex-direction: column;
     padding: 32px 20px;
+    min-height: 100dvh;
   }
 
   .registro-container > div {
     width: min(100%, 470px);
+    min-height: auto;
   }
 
   .registro-left {
@@ -226,5 +229,104 @@
 
   .full-width {
     grid-column: auto;
+  }
+}
+
+@media (max-width: 400px) and (max-height: 740px) {
+  .registro-container {
+    justify-content: flex-start;
+    padding: 12px;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .registro-container > div {
+    width: 100%;
+    max-width: 352px;
+  }
+
+  .registro-left {
+    padding: 18px 18px 14px;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .registro-left h2 {
+    margin: 0 0 6px;
+    font-size: 1.2rem;
+  }
+
+  .registro-left p {
+    margin: 0 0 12px;
+    font-size: 0.78rem;
+  }
+
+  .registro-left img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .registro-right {
+    padding: 18px 16px 16px;
+    border-radius: 0 0 18px 18px;
+  }
+
+  .registro-right h2 {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+  }
+
+  .registro-link {
+    margin-bottom: 14px;
+    font-size: 0.8rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .avatar-block {
+    gap: 6px;
+    padding: 4px 0 2px;
+  }
+
+  .avatar-picker {
+    width: 92px;
+    height: 92px;
+  }
+
+  .avatar-label {
+    opacity: 1;
+    font-size: 0.68rem;
+    padding: 5px 8px;
+  }
+
+  .avatar-help {
+    font-size: 0.72rem;
+  }
+
+  .registro-right input,
+  .registro-right textarea {
+    padding: 10px 12px;
+    font-size: 0.92rem;
+  }
+
+  .registro-right textarea {
+    min-height: 72px;
+  }
+
+  .registro-right button {
+    padding: 12px 16px;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+
+  .error-message {
+    padding: 0.65rem;
+    margin-bottom: 0.85rem;
+    font-size: 0.82rem;
   }
 }

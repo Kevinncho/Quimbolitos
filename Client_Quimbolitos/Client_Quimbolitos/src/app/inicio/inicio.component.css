@@ -9,6 +9,10 @@ body {
 .contenedor_principal {
   padding-top: 190px;
   gap: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 36px;
+  box-sizing: border-box;
 }
 
 .perfiles {
@@ -478,6 +482,37 @@ body {
   box-shadow: 0 0 20px rgba(80, 160, 255, 0.6);
 }
 
+.emoji-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  min-width: 132px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(6, 14, 28, 0.96);
+  border: 1px solid rgba(120, 180, 255, 0.24);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.35);
+  z-index: 8;
+}
+
+.emoji-dropdown span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.emoji-dropdown span:hover {
+  background: rgba(86, 145, 255, 0.24);
+}
+
 .boton-resultados-activo {
   animation: revelarBoton 0.5s ease;
 }
@@ -916,4 +951,303 @@ body {
 .btn-enviar:active img {
   transform: translateX(3px);
   transition: 0.1s ease;
+}
+
+@media (max-width: 768px) {
+  .contenedor_principal {
+    padding-top: 150px;
+    padding-left: 16px;
+    padding-right: 16px;
+    gap: 28px;
+  }
+
+  .tarjeta-diaria,
+  .mapa-emocional,
+  .ritual-llave-contenedor,
+  .distancia-widget {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .boton-resultados {
+    margin-left: 0;
+    margin-top: 12px;
+  }
+
+  .caja-respuesta {
+    margin: 8px 0 0;
+    padding: 16px 0 4px;
+    line-height: 1.2;
+  }
+
+  .boton-enviar {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 400px) and (max-height: 740px) {
+  body {
+    padding-top: 118px;
+  }
+
+  .contenedor_principal {
+    padding-top: 118px;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-bottom: 20px;
+    gap: 20px;
+  }
+
+  .perfiles {
+    width: 176px;
+    height: 92px;
+    margin: 0 auto 18px;
+  }
+
+  .perfil {
+    width: 92px;
+    height: 92px;
+    border-width: 3px;
+  }
+
+  .perfil-uno {
+    left: 0;
+  }
+
+  .perfil-pareja-indicador {
+    right: 6px;
+    bottom: 6px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .pareja-modal-backdrop,
+  .resultados-backdrop {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .pareja-panel,
+  .resultados-panel {
+    width: 100%;
+    max-height: calc(100dvh - 20px);
+    padding: 18px 14px;
+    border-radius: 18px;
+  }
+
+  .pareja-panel h2,
+  .resultados-panel h2 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  .pareja-cerrar,
+  .resultados-cerrar {
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+  }
+
+  .pareja-status-card,
+  .pareja-form-block,
+  .pareja-user-card {
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .pareja-search,
+  .pareja-actions,
+  .pareja-user-card,
+  .resultados-grid,
+  .ritual-llave-contenedor {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pareja-search,
+  .pareja-actions,
+  .pareja-user-card {
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .pareja-search input,
+  .pareja-btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .tarjeta-diaria {
+    width: 100%;
+    margin: 0 auto 8px;
+    padding: 18px 14px;
+    border-radius: 18px;
+    min-height: auto;
+  }
+
+  .tarjeta-diaria-top {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .tarjeta-diaria-badge,
+  .tarjeta-diaria-timer {
+    padding: 6px 10px;
+    font-size: 10px;
+  }
+
+  .tarjeta-diaria-timer {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .pregunta {
+    margin-bottom: 18px;
+    font-size: 1.05rem;
+    line-height: 1.4;
+  }
+
+  .boton-resultados,
+  .boton-enviar,
+  .boton-ocultar,
+  .boton-responder {
+    width: 50%;
+    padding: 12px 14px;
+    font-size: 0.92rem;
+    box-sizing: border-box;
+  }
+
+  .estado-resultados {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    font-size: 10px;
+  }
+
+  .caja-respuesta {
+    margin: 8px 0 0;
+    padding: 8px 0 0;
+    gap: 10px;
+  }
+
+  .respuesta-input,
+  .feedback-inicio {
+    width: 100%;
+  }
+
+  .respuesta-input {
+    transform: none;
+    padding: 12px 14px;
+    font-size: 0.92rem;
+    text-align: left;
+  }
+
+  .feedback-inicio {
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+  }
+
+  .distancia-widget {
+    margin-top: 0;
+    padding: 0 8px;
+  }
+
+  .distancia-texto {
+    margin-bottom: 10px;
+    font-size: 0.8rem;
+  }
+
+  .distancia-centro {
+    gap: 8px;
+  }
+
+  .circulo {
+    width: 38px;
+    height: 38px;
+    font-size: 0.95rem;
+  }
+
+  .linea {
+    width: 52px;
+  }
+
+  .corazon {
+    top: -11px;
+    font-size: 20px;
+  }
+
+  .km {
+    margin-top: 10px;
+    font-size: 0.86rem;
+  }
+
+  .ritual-llave-contenedor {
+    gap: 12px;
+    margin: 0 auto 6px;
+  }
+
+  .llave-ritual {
+    width: 58px;
+    height: 58px;
+  }
+
+  .mensaje-magico.lateral {
+    width: 100%;
+    max-width: none;
+    padding: 10px 12px;
+    border-radius: 16px;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .mapa-emocional {
+    gap: 8px;
+    margin: 0 auto;
+    padding: 12px;
+    border-radius: 18px;
+    grid-auto-rows: minmax(48px, auto);
+  }
+
+  .titulo_mapa_emocional {
+    margin-bottom: 10px;
+    padding: 4px 0;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+  }
+
+  .error-estado-emocional {
+    margin-bottom: 6px;
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+
+  .celda {
+    min-height: 48px;
+    padding: 8px 6px;
+    font-size: 0.84rem;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  .celda.emoji {
+    font-size: 1.25rem;
+  }
+
+  .emoji-dropdown {
+    min-width: 118px;
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .emoji-dropdown span {
+    width: 30px;
+    height: 30px;
+  }
 }

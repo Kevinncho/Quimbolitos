@@ -2,18 +2,38 @@
   <h1 class="titulo">Reino <span class="titulo_pequeña">de dos</span> Quimbolitos</h1>
 
   <div class="nav-bg">
-      <nav class="nav-principal contenedor">
-          <ul>
-              <li><a [routerLink]="['/inicio']"><span class="uno"><i class="icon icon-earth"></i></span>Inicio</a></li>
-              <li><a [routerLink]="['/juegos']"><span class="dos"><i class="icon icon-cart"></i></span>Juegos</a></li>
-              <li><a [routerLink]="['/preguntas']"><span class="tres"><i class="icon icon-wolfram"></i></span>Preguntas</a></li>
-              <li><a [routerLink]="['/diario']"><span class="cuatro"><i class="icon icon-viber"></i></span>Nuestro Diario</a></li>
-              <li *ngIf="esAdmin">
-                <a [routerLink]="['/admin/crear-pregunta']">
-                  <span class="cinco"><i class="icon icon-lock"></i></span>Admin preguntas
-                </a>
-              </li>
-          </ul>
-      </nav>
+    <nav class="nav-principal contenedor">
+      <ul class="nav-links">
+        <li><a [routerLink]="['/inicio']"><span class="uno"><i class="icon icon-earth"></i></span>Inicio</a></li>
+        <li><a [routerLink]="['/juegos']"><span class="dos"><i class="icon icon-cart"></i></span>Juegos</a></li>
+        <li><a [routerLink]="['/preguntas']"><span class="tres"><i class="icon icon-wolfram"></i></span>Preguntas</a></li>
+        <li><a [routerLink]="['/diario']"><span class="cuatro"><i class="icon icon-viber"></i></span>Nuestro Diario</a></li>
+        <li *ngIf="esAdmin">
+          <a [routerLink]="['/admin/crear-pregunta']">
+            <span class="cinco"><i class="icon icon-lock"></i></span>Admin preguntas
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-menu-mobile">
+        <button
+          type="button"
+          class="menu-column"
+          (click)="toggleMenu()"
+          [attr.aria-expanded]="menuOpen"
+          aria-label="Abrir menu"
+        >
+          Menu
+        </button>
+
+        <div class="menu-flyout" [class.menu-flyout-open]="menuOpen">
+          <a [routerLink]="['/inicio']" (click)="closeMenu()">Inicio</a>
+          <a [routerLink]="['/preguntas']" (click)="closeMenu()">Preguntas</a>
+          <a [routerLink]="['/juegos']" (click)="closeMenu()">Juegos</a>
+          <a [routerLink]="['/diario']" (click)="closeMenu()">Nuestro Diario</a>
+          <a *ngIf="esAdmin" [routerLink]="['/admin/crear-pregunta']" (click)="closeMenu()">Admin preguntas</a>
+        </div>
+      </div>
+    </nav>
   </div>
 </header>

@@ -231,3 +231,44 @@ button:disabled {
   color: #ffd1d1;
   border: 1px solid rgba(255, 166, 166, 0.25);
 }
+
+@media (max-width: 400px) and (max-height: 740px) {
+  .modal-overlay {
+    align-items: center;
+    padding: 16px 10px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: 360px;
+    max-height: calc(100dvh - 32px);
+    padding: 18px 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 0 auto;
+  }
+
+  .crear-recuerdo {
+    width: 100%;
+    gap: 14px;
+  }
+
+  .crear-recuerdo h2 {
+    font-size: 1.6rem;
+    margin-bottom: 2px;
+  }
+
+  .subtitulo {
+    margin-bottom: 6px;
+  }
+
+  form {
+    gap: 12px;
+  }
+
+  .imagen-preview {
+    height: 150px;
+  }
+}

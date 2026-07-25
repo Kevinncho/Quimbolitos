@@ -14,6 +14,33 @@
       </button>
     </div>
 
+    <div *ngIf="temas.length > 0" class="temas-menu-mobile">
+      <button
+        type="button"
+        class="temas-menu-toggle"
+        (click)="toggleTemasMenu()"
+        [attr.aria-expanded]="temasMenuOpen"
+        aria-label="Abrir lista de temas"
+      >
+        {{ temaActual?.nombre || 'Temas' }}
+      </button>
+
+      <div class="temas-menu-flyout" [class.temas-menu-flyout-open]="temasMenuOpen">
+        <button
+          type="button"
+          *ngFor="let tema of temas"
+          class="temas-menu-item"
+          [class.temas-menu-item-active]="temaSeleccionadoId === tema.id"
+          (click)="seleccionarTemaDesdeMenu(tema.id)"
+        >
+          <span class="temas-menu-item-copy">
+            <span class="tema-nombre">{{ tema.nombre }}</span>
+            <span class="tema-meta">{{ tema.totalSubtemas }} subtemas</span>
+          </span>
+        </button>
+      </div>
+    </div>
+
     <ul class="lista-temas">
       <li
         *ngFor="let tema of temas"
@@ -73,6 +100,37 @@
 
         <div *ngIf="!isLoadingSubtemas && subtemas.length === 0" class="empty-block">
           Este tema todavía no tiene subtemas.
+        </div>
+
+        <div *ngIf="subtemas.length > 0" class="subtemas-menu-mobile">
+          <button
+            type="button"
+            class="subtemas-menu-toggle"
+            (click)="toggleSubtemasMenu()"
+            [attr.aria-expanded]="subtemasMenuOpen"
+            aria-label="Abrir lista de subtemas"
+          >
+            {{ subtemaActual?.nombre || 'Subtemas' }}
+          </button>
+
+          <div class="subtemas-menu-flyout" [class.subtemas-menu-flyout-open]="subtemasMenuOpen">
+            <button
+              type="button"
+              *ngFor="let subtema of subtemas"
+              class="subtemas-menu-item"
+              [class.subtemas-menu-item-active]="subtemaSeleccionadoId === subtema.id"
+              (click)="seleccionarSubtemaDesdeMenu(subtema.id)"
+            >
+              <img
+                *ngIf="getIconoPath(subtema.icono) as iconoPath"
+                class="chip-icon chip-icon-image"
+                [src]="iconoPath"
+                [alt]="subtema.nombre"
+                (error)="ocultarIconoRoto($event)"
+              />
+              <span>{{ subtema.nombre }}</span>
+            </button>
+          </div>
         </div>
 
         <div *ngIf="subtemas.length > 0" class="chip-list">

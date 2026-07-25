@@ -132,7 +132,12 @@
           [disabled]="!puedeGuardarRespuesta"
           (click)="enviarRespuesta()"
         >
-          {{ isSending ? 'Enviando...' : 'Enviar respuesta' }}
+          <ng-container *ngIf="isSending; else textoEnviar">
+            Enviando<span class="texto-extra-btn">...</span>
+          </ng-container>
+          <ng-template #textoEnviar>
+            Enviar<span class="texto-extra-btn"> respuesta</span>
+          </ng-template>
         </button>
       </div>
     </div>

@@ -132,6 +132,10 @@
   gap: 12px;
 }
 
+.temas-menu-mobile {
+  display: none;
+}
+
 .lista-temas li {
   padding: 16px 18px;
   border-radius: 18px;
@@ -167,6 +171,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+.subtemas-menu-mobile {
+  display: none;
 }
 
 .chip {
@@ -938,5 +946,174 @@
   .similitud-ring {
     width: 150px;
     height: 150px;
+  }
+}
+@media (max-width: 400px) and (max-height: 740px) {
+  .temas-menu-mobile {
+    display: block;
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .temas-menu-toggle {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(118, 171, 255, 0.3);
+    background: linear-gradient(135deg, rgba(40, 120, 255, 0.5), rgba(10, 30, 60, 0.55));
+    color: #eaf3ff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 0 16px rgba(80, 150, 255, 0.25);
+  }
+
+  .temas-menu-toggle:hover,
+  .temas-menu-toggle[aria-expanded="true"] {
+    filter: brightness(1.08);
+  }
+
+  .temas-menu-flyout {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    padding: 6px;
+    border-radius: 18px;
+    background: rgba(8, 14, 28, 0.96);
+    border: 1px solid rgba(110, 171, 255, 0.18);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.32);
+    z-index: 31;
+  }
+
+  .temas-menu-flyout.temas-menu-flyout-open {
+    display: flex;
+  }
+
+  .temas-menu-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 11px 12px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: rgba(220, 236, 255, 0.9);
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .temas-menu-item-copy {
+    display: grid;
+    gap: 4px;
+    text-align: left;
+  }
+
+  .temas-menu-item:hover,
+  .temas-menu-item-active {
+    background: rgba(50, 100, 255, 0.25);
+    box-shadow: inset 0 0 0 1px rgba(110, 171, 255, 0.16);
+  }
+
+  .lista-temas {
+    display: none;
+  }
+
+  .subtemas-menu-mobile {
+    display: block;
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .subtemas-menu-toggle {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(118, 171, 255, 0.3);
+    background: linear-gradient(135deg, rgba(40, 120, 255, 0.5), rgba(10, 30, 60, 0.55));
+    color: #eaf3ff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 0 16px rgba(80, 150, 255, 0.25);
+  }
+
+  .subtemas-menu-toggle:hover,
+  .subtemas-menu-toggle[aria-expanded="true"] {
+    filter: brightness(1.08);
+  }
+
+  .subtemas-menu-flyout {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    padding: 6px;
+    border-radius: 18px;
+    background: rgba(8, 14, 28, 0.96);
+    border: 1px solid rgba(110, 171, 255, 0.18);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.32);
+    z-index: 30;
+  }
+
+  .subtemas-menu-flyout.subtemas-menu-flyout-open {
+    display: flex;
+  }
+
+  .subtemas-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 12px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: rgba(220, 236, 255, 0.9);
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .subtemas-menu-item:hover,
+  .subtemas-menu-item-active {
+    background: rgba(50, 100, 255, 0.25);
+    box-shadow: inset 0 0 0 1px rgba(110, 171, 255, 0.16);
+  }
+
+  .chip-list {
+    display: none;
+  }
+
+  .admin-form-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .admin-btn.subtle,
+  .admin-btn.primary {
+    width: 50%;
+    max-width: 140px;
+  }
+  .acciones{
+    display: flex;
+    justify-content: center;
+  }
+  .boton-responder{
+    width: 50%;
+  margin-left: 35px;
   }
 }

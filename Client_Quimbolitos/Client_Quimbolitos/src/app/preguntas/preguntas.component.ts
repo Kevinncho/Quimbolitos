@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
@@ -36,6 +36,8 @@ export class PreguntasComponent implements OnInit, OnDestroy {
 
   temaSeleccionadoId: number | null = null;
   subtemaSeleccionadoId: number | null = null;
+  temasMenuOpen = false;
+  subtemasMenuOpen = false;
 
   isLoadingTemas = false;
   isLoadingSubtemas = false;
@@ -109,8 +111,14 @@ export class PreguntasComponent implements OnInit, OnDestroy {
   seleccionarTema(temaId: number): void {
     this.temaSeleccionadoId = temaId;
     this.subtemaSeleccionadoId = null;
+    this.temasMenuOpen = false;
+    this.subtemasMenuOpen = false;
     this.preguntas = [];
     this.cargarSubtemas(temaId);
+  }
+
+  seleccionarTemaDesdeMenu(temaId: number): void {
+    this.seleccionarTema(temaId);
   }
 
   cargarSubtemas(temaId: number): void {
@@ -140,7 +148,36 @@ export class PreguntasComponent implements OnInit, OnDestroy {
 
   seleccionarSubtema(subtemaId: number): void {
     this.subtemaSeleccionadoId = subtemaId;
+    this.subtemasMenuOpen = false;
     this.cargarPreguntas(subtemaId);
+  }
+
+  seleccionarSubtemaDesdeMenu(subtemaId: number): void {
+    this.seleccionarSubtema(subtemaId);
+  }
+
+  toggleSubtemasMenu(): void {
+    this.subtemasMenuOpen = !this.subtemasMenuOpen;
+  }
+
+  toggleTemasMenu(): void {
+    this.temasMenuOpen = !this.temasMenuOpen;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+
+    if (!target.closest('.subtemas-menu-mobile')) {
+      this.subtemasMenuOpen = false;
+    }
+
+    if (!target.closest('.temas-menu-mobile')) {
+      this.temasMenuOpen = false;
+    }
   }
 
   getIconoPath(icono?: string | null): string | null {
