@@ -1,6 +1,5 @@
 const LOCAL_API_ORIGIN = 'http://localhost:8080';
-const PRODUCTION_API_ORIGIN = 'https://fabulous-delight-production-ced2.up.railway.app';
-
+const PRODUCTION_API_ORIGIN = 'https://quimbolitos.onrender.com';
 function isLocalHostname(hostname: string): boolean {
   return hostname === 'localhost' || hostname === '127.0.0.1';
 }
