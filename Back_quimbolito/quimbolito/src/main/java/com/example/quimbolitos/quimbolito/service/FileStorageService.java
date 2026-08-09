@@ -88,9 +88,6 @@ public class FileStorageService {
 
     public String storePeliculaPhoto(MultipartFile file) {
         validateImage(file);
-        if (localStorageEnabled) {
-            return storeLocally(file, peliculasDir);
-        }
         return cloudinaryService.uploadImage(file, "quimbolito/peliculas");
     }
 
